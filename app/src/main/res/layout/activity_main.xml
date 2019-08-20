@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+
+    <TextView
+        android:id="@+id/result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Distanzrechner"
+        android:textSize="30dp"/>
+
+    <TextView
+        android:id="@+id/text_test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginTop="387dp"
+        android:layout_toRightOf="@id/ergebnis"
+        android:text="Ergebnis"
+        android:textColor="#000000" />
+
+    <Button
+        android:id="@+id/test_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/second_button"
+        android:onClick="buttonClicked"
+        android:text="Start" />
+
+    <Button
+        android:id="@+id/first_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/y_one"
+        android:text="Get Location" />
+
+    <Button
+        android:id="@+id/second_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/y_two"
+        android:text="Get Location" />
+
+
+    <EditText
+        android:id="@+id/x_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_test"
+        android:layout_alignStart="@+id/result"
+        android:layout_alignLeft="@+id/result"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="-280dp"
+        android:ems="7"
+        android:inputType="numberDecimal|numberSigned" />
+
+    <EditText
+        android:id="@+id/y_one"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/x_one"
+        android:ems="7"
+        android:inputType="numberDecimal|numberSigned" />
+
+    <EditText
+        android:id="@+id/x_two"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/first_button"
+        android:ems="7"
+        android:inputType="numberDecimal|numberSigned" />
+
+    <EditText
+        android:id="@+id/y_two"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/x_two"
+        android:ems="7"
+        android:inputType="numberDecimal|numberSigned" />
+
+    <EditText
+        android:id="@+id/ergebnis"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/test_button"
+        android:layout_alignStart="@+id/result"
+        android:layout_alignLeft="@+id/result"
+        android:layout_marginTop="19dp"
+        android:ems="7"
+        android:focusable="false"
+        android:inputType="text" />
+
+    <ImageButton
+        android:id="@+id/map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/ergebnis"
+        android:src="@drawable/ic_map"
+        android:visibility="gone"/>
+
+
+
+
+
+</RelativeLayout>

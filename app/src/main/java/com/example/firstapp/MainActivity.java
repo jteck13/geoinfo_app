@@ -30,7 +30,6 @@ import java.text.NumberFormat;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.util.GeoPoint;
 
-//test
 
 public class MainActivity extends AppCompatActivity {
 

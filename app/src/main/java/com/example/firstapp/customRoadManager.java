@@ -1,21 +1,36 @@
 package com.example.firstapp;
 
-import android.content.Context;
-
-import org.osmdroid.bonuspack.routing.OSRMRoadManager;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.utils.BonusPackHelper;
+import org.osmdroid.util.GeoPoint;
+
+import java.util.ArrayList;
 
 
-public class customRoadManager extends OSRMRoadManager {
+public class customRoadManager extends RoadManager {
 
-    public customRoadManager(Context context){
-        super(context);
-       // mContext = context;
-        mServiceUrl = SERVICE;
-        mUserAgent = BonusPackHelper.DEFAULT_USER_AGENT;
+    @Override
+    public Road getRoad(ArrayList<GeoPoint> waypoints) {
+        return null;
     }
 
-    static final String SERVICE = "https://api.openrouteservice.org/v2/directions/driving-car";
+    @Override
+    public Road[] getRoads(ArrayList<GeoPoint> waypoints) {
+        return new Road[0];
+    }
+
+    public customRoadManager(){
+        super();
+    }
+
+
+
+    public static String getResultPoints() {
+        String api = "https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb&start=8.681495,49.41461&end=8.687872,49.420318";
+        String result = BonusPackHelper.requestStringFromUrl(api);
+        return result;
+    }
 
 
 }

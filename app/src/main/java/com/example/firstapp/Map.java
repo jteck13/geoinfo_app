@@ -8,7 +8,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -103,6 +105,18 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.getOverlayManager().add(line);
         map.invalidate();
         map.getOverlays().add( mapEventsOverlay);
+
+        Button btnNew = findViewById(R.id.testNew);
+
+        btnNew.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String result = "hallo";
+                //result = customRoadManager.getResultPoints();
+                Log.i("hallo", result);
+            }
+        });
+
     }
 
     public void onResume(){

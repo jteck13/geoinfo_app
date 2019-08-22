@@ -35,8 +35,6 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
 
-
-
         //handle permissions first, before map is created. not depicted here
 
         //load/initialize the osmdroid configuration, this can be done
@@ -106,29 +104,6 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.invalidate();
         map.getOverlays().add( mapEventsOverlay);
     }
-
-   /* private BoundingBox getBoundingBox(GeoPoint start, GeoPoint end) {
-        double north;
-        double south;
-        double east;
-        double west;
-        if(start.getLatitude() > end.getLatitude()) {
-            north = start.getLatitude();
-            south = end.getLatitude();
-        } else {
-            north = end.getLatitude();
-            south = start.getLatitude();
-        }
-        if(start.getLongitude() > end.getLongitude()) {
-            east = start.getLongitude();
-            west = end.getLongitude();
-        } else {
-            east = end.getLongitude();
-            west = start.getLongitude();
-        }
-        return new BoundingBox(north, east, south, west);
-    }
-    */
 
     public void onResume(){
         super.onResume();

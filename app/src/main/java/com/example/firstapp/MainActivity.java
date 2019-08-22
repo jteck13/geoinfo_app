@@ -2,24 +2,22 @@ package com.example.firstapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
+//location
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
-
+import android.location.Location;
 import java.text.DecimalFormat;
 import java.lang.*;
 
@@ -71,8 +69,6 @@ public class MainActivity extends AppCompatActivity {
                 if (checkLocationPermission() == false) {
                     requestPermission();
                     getLoc();
-
-
                     xCoordOne.setText(String.valueOf(longitude));
                     yCoordOne.setText(String.valueOf(latitude));
                 }else{
@@ -94,27 +90,12 @@ public class MainActivity extends AppCompatActivity {
                 double x2;
                 double y2;
 
-                try{
-                    x1 = Math.toRadians(Double.parseDouble(xCoordOne.getText().toString()));
-                } catch (final NumberFormatException e) {
-                    x1 = 0.0;
-                }
-                try{
-                    y1 = Math.toRadians(Double.parseDouble(yCoordOne.getText().toString()));
-                } catch (final NumberFormatException e) {
-                    y1 = 0.0;
-                }
 
-                try{
-                    x2 = Math.toRadians(Double.parseDouble(xCoordTwo.getText().toString()));
-                } catch (final NumberFormatException e) {
-                    x2 = 0.0;
-                }
-                try{
-                    y2 = Math.toRadians(Double.parseDouble(yCoordTwo.getText().toString()));
-                } catch (final NumberFormatException e) {
-                    y2 = 0.0;
-                }
+                x1 = Math.toRadians(Double.parseDouble(xCoordOne.getText().toString()));
+                y1 = Math.toRadians(Double.parseDouble(yCoordOne.getText().toString()));
+                x2 = Math.toRadians(Double.parseDouble(xCoordTwo.getText().toString()));
+                y2 = Math.toRadians(Double.parseDouble(yCoordTwo.getText().toString()));
+
 
                 // great circle distance in radians
                 double angle1 = Math.acos(Math.sin(x1) * Math.sin(x2)
@@ -130,20 +111,12 @@ public class MainActivity extends AppCompatActivity {
                 DecimalFormat df2 = new DecimalFormat("#.##");
                 String result = df2.format(distance1);
 
-
                 //to Textfield
                 EditText ergebnis = (EditText) findViewById(R.id.ergebnis);
                 ergebnis.setText(result+" km");
 
-                Log.i("MyApp", "magic");
-
                 map.setVisibility(View.VISIBLE);
-
             }
-
-
-
-
         });
 
         // Start new activity
@@ -191,7 +164,6 @@ public class MainActivity extends AppCompatActivity {
                         checkLocationPermission();
                         //ActivityCompat.requestPermissions(this, permissions, 42);
 
-
                         // Wenn keine weitere Nachfrage gewünscht, entferne Location-verknüpfte Elemente
                     }else if (shouldShowRequestPermissionRationale()==false){
                         Toast.makeText(this, "Location Permission finally denied, Elements removed", Toast.LENGTH_LONG).show();
@@ -204,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
 
     public void getLoc() {
         if (checkLocationPermission()){
@@ -237,9 +208,9 @@ public class MainActivity extends AppCompatActivity {
         return shouldShowRequestPermissionRationale(permissions[0]);
     }
 
+    // check permissions
     public boolean checkLocationPermission()
     {
-        //String permission = "android.permission.ACCESS_COARSE_LOCATION";
         int res = this.checkCallingOrSelfPermission(permissions[0]);
         return (res == PackageManager.PERMISSION_GRANTED);
     }

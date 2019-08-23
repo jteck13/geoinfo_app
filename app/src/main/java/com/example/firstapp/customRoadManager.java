@@ -54,6 +54,7 @@ public class customRoadManager extends RoadManager {
         Log.d(BonusPackHelper.LOG_TAG, "ORS.getRoads:" + url);
         String jString = BonusPackHelper.requestStringFromUrl(url);
         Log.d("result", jString);
+        /*
         if (jString == null) {
             return defaultRoad(waypoints);
         }
@@ -66,7 +67,7 @@ public class customRoadManager extends RoadManager {
 				road = new Road(waypoints);
 				road.mStatus = STATUS_NO_ROUTE;
 				return road;
-				*/
+				*//*
             }
             boolean mWithElevation = false;
             Road[] roads = new Road[jPaths.length()];
@@ -90,7 +91,7 @@ public class customRoadManager extends RoadManager {
         } catch (JSONException e) {
             e.printStackTrace();
             return defaultRoad(waypoints);
-        }
+        }*/
     }
 
 

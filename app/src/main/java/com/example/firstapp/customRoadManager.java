@@ -2,6 +2,10 @@ package com.example.firstapp;
 
 import android.util.Log;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -54,44 +58,45 @@ public class customRoadManager extends RoadManager {
         Log.d(BonusPackHelper.LOG_TAG, "ORS.getRoads:" + url);
         String jString = BonusPackHelper.requestStringFromUrl(url);
         Log.d("result", jString);
-        /*
-        if (jString == null) {
-            return defaultRoad(waypoints);
-        }
         try {
-            JSONObject jRoot = new JSONObject(jString);
-            JSONArray jPaths = jRoot.optJSONArray("paths");
-            if (jPaths == null || jPaths.length() == 0){
-                return defaultRoad(waypoints);
-				/*
-				road = new Road(waypoints);
-				road.mStatus = STATUS_NO_ROUTE;
-				return road;
-				*//*
-            }
-            boolean mWithElevation = false;
-            Road[] roads = new Road[jPaths.length()];
-            for (int r = 0; r < jPaths.length(); r++) {
-                JSONObject jPath = jPaths.getJSONObject(r);
-                String route_geometry = jPath.getString("points");
-                Road road = new Road();
-                roads[r] = road;
-                road.mRouteHigh = PolylineEncoder.decode(route_geometry, 10, mWithElevation);
-                JSONArray jInstructions = jPath.getJSONArray("instructions");
-                int n = jInstructions.length();
-                for (int i = 0; i < n; i++) {
-                    JSONObject jInstruction = jInstructions.getJSONObject(i);
-                    RoadNode node = new RoadNode();
-                }
-                road.mStatus = Road.STATUS_OK;
-                road.buildLegs(waypoints);
-                Log.d(BonusPackHelper.LOG_TAG, "GraphHopper.getRoads - finished");
-            }
-            return roads;
+            parseJson(jString);
         } catch (JSONException e) {
             e.printStackTrace();
-            return defaultRoad(waypoints);
-        }*/
+        }
+        Road road1 = new Road(null);
+        Road raod2 = new Road(null);
+
+        Road[] road = {road1, raod2};
+        return road;
+
+    }
+
+    public void parseJson(String jString ) throws JSONException {
+
+        JsonParser parser = new JsonParser();
+        JsonElement jsonTree = parser.parse(jString);
+
+        if(jsonTree.isJsonObject()){
+            JsonObject jsonObject = jsonTree.getAsJsonObject();
+
+            JsonElement geometry = jsonObject.get("geometry");
+
+            JsonElement f2 = jsonObject.get("coordinates");
+
+            if(f2.isJsonObject()){
+                JsonObject f2Obj = f2.getAsJsonObject();
+
+                JsonElement f3 = f2Obj.get("f3");
+            }
+
+        /*
+        JSONObject jRoot = new JSONObject(jString);
+        JSONObject features = jRoot.getJSONObject("object");
+        JSONObject id = features.getJSONObject("0");
+        JSONObject geom = id.getJSONObject("geometry");
+        JSONArray points = geom.getJSONArray("coordinates");
+        Log.d( "tag ", String.valueOf(points));
+        */
     }
 
 

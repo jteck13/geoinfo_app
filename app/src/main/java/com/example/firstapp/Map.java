@@ -5,14 +5,20 @@
 
 package com.example.firstapp;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
+import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.bonuspack.utils.BonusPackHelper;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
@@ -36,6 +42,9 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
 
         //handle permissions first, before map is created. not depicted here
 
@@ -106,17 +115,31 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.invalidate();
         map.getOverlays().add( mapEventsOverlay);
 
+
+        RoadManager roadManager = new customRoadManager("5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb");
+        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        waypoints.add(start);
+        waypoints.add(end);
+        Road road = roadManager.getRoad(waypoints);
+        Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+        map.getOverlays().add(roadOverlay);
+        map.invalidate();
+
+
+        /*
         Button btnNew = findViewById(R.id.testNew);
 
         btnNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String result = "hallo";
-                //result = customRoadManager.getResultPoints();
-                Log.i("hallo", result);
+                Intent openTest = new Intent(Map.this, Test.class);
+                Map.this.startActivity(openTest);
+                Log.i("New Test", "Test");
             }
         });
 
+
+         */
     }
 
     public void onResume(){

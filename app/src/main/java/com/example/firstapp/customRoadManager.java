@@ -2,6 +2,7 @@ package com.example.firstapp;
 
 import android.util.Log;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -10,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.bonuspack.routing.Road;
+import org.osmdroid.bonuspack.routing.RoadLeg;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.bonuspack.utils.BonusPackHelper;
@@ -31,6 +33,7 @@ public class customRoadManager extends RoadManager {
         mApiKey = apiKey;
     }
 
+
     protected String getUrl(ArrayList<GeoPoint> waypoints) {
         StringBuilder urlString = new StringBuilder(OPENROUTE_GUIDANCE_SERVICE);
 
@@ -46,64 +49,68 @@ public class customRoadManager extends RoadManager {
         return urlString.toString();
     }
 
-
-    protected Road[] defaultRoad(ArrayList<GeoPoint> waypoints) {
-        Road[] roads = new Road[1];
-        roads[0] = new Road(waypoints);
-        return roads;
-    }
-
-    public Road[] getRoads(ArrayList<GeoPoint> waypoints) {
+    public Road getRoad(ArrayList<GeoPoint> waypoints) {
         String url = getUrl(waypoints);
         Log.d(BonusPackHelper.LOG_TAG, "ORS.getRoads:" + url);
         String jString = BonusPackHelper.requestStringFromUrl(url);
         Log.d("result", jString);
-        try {
-            parseJson(jString);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        if (jString == null) {
+            Log.d("err1", "error");
+            return new Road(waypoints);
         }
-        Road road1 = new Road(null);
-        Road raod2 = new Road(null);
 
-        Road[] road = {road1, raod2};
-        return road;
+        Road road = new Road();
+        try {
+            JSONObject jRoot = new JSONObject(jString);
+            JSONArray jPaths = jRoot.optJSONArray("features");
+            JSONObject jPath = jPaths.getJSONObject(0);
+            JSONObject route_geometry = jPath.getJSONObject("geometry");
+            JSONArray coords = route_geometry.getJSONArray("coordinates");
+            int len = coords.length();
+            Log.d("len", String.valueOf(len));
+            int n = coords.length();
+            road.mRouteHigh = new ArrayList<>(n);
+            for (int i = 0; i < n; i++) {
 
-    }
-
-    public void parseJson(String jString ) throws JSONException {
-
-        JsonParser parser = new JsonParser();
-        JsonElement jsonTree = parser.parse(jString);
-
-        if(jsonTree.isJsonObject()){
-            JsonObject jsonObject = jsonTree.getAsJsonObject();
-
-            JsonElement geometry = jsonObject.get("geometry");
-
-            JsonElement f2 = jsonObject.get("coordinates");
-
-            if(f2.isJsonObject()){
-                JsonObject f2Obj = f2.getAsJsonObject();
-
-                JsonElement f3 = f2Obj.get("f3");
+                JSONArray point = coords.getJSONArray(i);
+                double lat = point.getDouble(0);
+                double lon = point.getDouble(1);
+                GeoPoint p = new GeoPoint(lat, lon);
+                road.mRouteHigh.add(p);
             }
 
-        /*
-        JSONObject jRoot = new JSONObject(jString);
-        JSONObject features = jRoot.getJSONObject("object");
-        JSONObject id = features.getJSONObject("0");
-        JSONObject geom = id.getJSONObject("geometry");
-        JSONArray points = geom.getJSONArray("coordinates");
-        Log.d( "tag ", String.valueOf(points));
-        */
+            Log.d("lis", String.valueOf(road.mRouteHigh));
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+
+            Log.d("err1", "error");
+            return new Road(waypoints);
+        }
+        return road;
     }
 
 
-    @Override
-    public Road getRoad(ArrayList<GeoPoint> waypoints) {
-        Road[] roads = getRoads(waypoints);
-        return roads[0];
+    /**
+     * Note that alternate roads are not supported by MapQuest. This will always return 1 entry only.
+     */
+    @Override public Road[] getRoads(ArrayList<GeoPoint> waypoints) {
+        Road road = getRoad(waypoints);
+        Road[] roads = new Road[1];
+        roads[0] = road;
+        return roads;
+    }
+
+    /** Road Link is a portion of road between 2 "nodes" or intersections */
+    class RoadLink {
+        /** in km/h */
+        public double mSpeed;
+        /** in km */
+        public double mLength;
+        /** in sec */
+        public double mDuration;
+        /** starting point of the link, as index in initial polyline */
+        public int mShapeIndex;
     }
 
 

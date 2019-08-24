@@ -71,6 +71,9 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         start = new GeoPoint(y1, x1);
         end = new GeoPoint(y2, x2);
 
+        GeoPoint routingStart = new GeoPoint(x1, y1);
+        GeoPoint routingEnd = new GeoPoint(x2, y2);
+
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this);
         /*
         Marker startMarker = new Marker(map);
@@ -107,6 +110,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.getOverlays().add(endMarker);
 
         //Create line between the markers
+        /*
         List<GeoPoint> geoPoints = new ArrayList<>();
         geoPoints.add(start);
         geoPoints.add(end);
@@ -117,12 +121,15 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.getOverlays().add( mapEventsOverlay);
 
 
+         */
+
         RoadManager roadManager = new customRoadManager("5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb");
         ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
-        waypoints.add(start);
-        waypoints.add(end);
+        waypoints.add(routingStart);
+        waypoints.add(routingEnd);
         Road road = roadManager.getRoad(waypoints);
-        Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
+        Log.d("road", String.valueOf(road));
+        Polyline roadOverlay = roadManager.buildRoadOverlay(road);
         map.getOverlays().add(roadOverlay);
         map.invalidate();
 

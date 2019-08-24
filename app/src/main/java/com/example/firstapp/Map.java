@@ -6,6 +6,9 @@
 package com.example.firstapp;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
@@ -18,6 +21,7 @@ import android.widget.Toast;
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
+import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.bonuspack.utils.BonusPackHelper;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
@@ -128,8 +132,19 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         waypoints.add(routingStart);
         waypoints.add(routingEnd);
         Road road = roadManager.getRoad(waypoints);
-        Log.d("road", String.valueOf(road));
         Polyline roadOverlay = roadManager.buildRoadOverlay(road);
+        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node_new);
+
+        for (int i=0; i<road.mNodes.size(); i++){
+            RoadNode node = road.mNodes.get(i);
+            Marker nodeMarker = new Marker(map);
+            nodeMarker.setPosition(node.mLocation);
+            nodeMarker.setIcon(nodeIcon);
+            nodeMarker.setTitle("Step "+i);
+            nodeMarker.setSnippet(node.mInstructions);
+            nodeMarker.setSubDescription(Road.getLengthDurationText(this, node.mLength, node.mDuration));
+            map.getOverlays().add(nodeMarker);
+        }
         map.getOverlays().add(roadOverlay);
         map.invalidate();
 

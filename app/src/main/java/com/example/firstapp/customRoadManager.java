@@ -62,29 +62,67 @@ public class customRoadManager extends RoadManager {
         Road road = new Road();
         try {
             JSONObject jRoot = new JSONObject(jString);
+            //features
             JSONArray jPaths = jRoot.optJSONArray("features");
             JSONObject jPath = jPaths.getJSONObject(0);
             JSONObject route_geometry = jPath.getJSONObject("geometry");
+            //coords
             JSONArray coords = route_geometry.getJSONArray("coordinates");
             int len = coords.length();
             Log.d("len", String.valueOf(coords));
             int n = coords.length();
             road.mRouteHigh = new ArrayList<>(n);
-            ArrayList <GeoPoint> gPoints = new ArrayList<>();
+
+            JSONObject jLeg = jPath.getJSONObject("properties");
+            JSONArray jSeg = jLeg.getJSONArray("segments");
+            JSONObject segments = jSeg.getJSONObject(0);
+            road.mLength = segments.getDouble("distance") / 1000;
+            road.mDuration = segments.getDouble("duration");
+            JSONArray steps = segments.getJSONArray("steps");
+
+            int r = steps.length();
+
+            Log.d("prop", String.valueOf(r));
+
+
+
             for (int i = 0; i < n; i++) {
 
                 JSONArray point = coords.getJSONArray(i);
                 double lat = point.getDouble(0);
                 double lon = point.getDouble(1);
                 GeoPoint p = new GeoPoint(lon, lat);
-                gPoints.add(p);
                 road.mRouteHigh.add(p);
+                RoadNode lastNode = null;
+
             }
 
-            Log.d("geopount", String.valueOf(gPoints.get(0)));
+            for (int l=0; l<steps.length(); l++) {
+                RoadNode node = new RoadNode();
+                JSONObject step = steps.getJSONObject(l);
+                node.mLength = step.getDouble("distance")/1000;
+                node.mDuration = step.getDouble("duration");
+                JSONArray wayp = step.getJSONArray("way_points");
+                int positionIndex =  wayp.getInt(0);
+                Log.d("wayp", String.valueOf(step));
+                node.mLocation = road.mRouteHigh.get(positionIndex);
+                road.mNodes.add(node);
+            }
 
 
-            Log.d("lis", String.valueOf(gPoints));
+            // Bounding Box
+            /*
+            JSONArray jBoundingBox = jRoot.getJSONArray("bbox");
+            double lat = jBoundingBox.getDouble(1);
+
+            Log.d("bb", String.valueOf(jBoundingBox));
+
+            road.mBoundingBox = new BoundingBox(jBoundingBox.getDouble(3),
+                    jBoundingBox.getDouble(2),
+                    jBoundingBox.getDouble(1),
+                    jBoundingBox.getDouble(0));
+
+             */
 
         } catch (JSONException e) {
             e.printStackTrace();

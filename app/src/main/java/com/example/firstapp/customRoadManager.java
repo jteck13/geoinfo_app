@@ -67,23 +67,27 @@ public class customRoadManager extends RoadManager {
             JSONObject route_geometry = jPath.getJSONObject("geometry");
             JSONArray coords = route_geometry.getJSONArray("coordinates");
             int len = coords.length();
-            Log.d("len", String.valueOf(len));
+            Log.d("len", String.valueOf(coords));
             int n = coords.length();
             road.mRouteHigh = new ArrayList<>(n);
+            ArrayList <GeoPoint> gPoints = new ArrayList<>();
             for (int i = 0; i < n; i++) {
 
                 JSONArray point = coords.getJSONArray(i);
                 double lat = point.getDouble(0);
                 double lon = point.getDouble(1);
-                GeoPoint p = new GeoPoint(lat, lon);
+                GeoPoint p = new GeoPoint(lon, lat);
+                gPoints.add(p);
                 road.mRouteHigh.add(p);
             }
 
-            Log.d("lis", String.valueOf(road.mRouteHigh));
+            Log.d("geopount", String.valueOf(gPoints.get(0)));
+
+
+            Log.d("lis", String.valueOf(gPoints));
 
         } catch (JSONException e) {
             e.printStackTrace();
-
             Log.d("err1", "error");
             return new Road(waypoints);
         }

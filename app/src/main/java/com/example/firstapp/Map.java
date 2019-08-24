@@ -5,37 +5,26 @@
 
 package com.example.firstapp;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.Toast;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
-import org.osmdroid.bonuspack.utils.BonusPackHelper;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
-import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Map extends AppCompatActivity implements MapEventsReceiver {
     MapView map = null;
@@ -86,10 +75,10 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.getOverlays().add(startMarker);
         */
 
-        map = (MapView) findViewById(R.id.map);
+        map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         mapController = map.getController();
-        mapController.setZoom(9.00);
+        mapController.setZoom(15.00);
         mapController.setCenter(start);
         //GeoPoint center = new GeoPoint(52.2799112,8.0471788);
         //map.zoomToBoundingBox(getBoundingBox(start, end), true);
@@ -127,19 +116,24 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
 
          */
 
-        RoadManager roadManager = new customRoadManager("5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb");
-        ArrayList<GeoPoint> waypoints = new ArrayList<GeoPoint>();
+        RoadManager roadManager = new CustomRoadManager("5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb");
+        ArrayList<GeoPoint> waypoints = new ArrayList<>();
         waypoints.add(routingStart);
         waypoints.add(routingEnd);
         Road road = roadManager.getRoad(waypoints);
         Polyline roadOverlay = roadManager.buildRoadOverlay(road);
-        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node_new);
+        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
 
         for (int i=0; i<road.mNodes.size(); i++){
             RoadNode node = road.mNodes.get(i);
             Marker nodeMarker = new Marker(map);
             nodeMarker.setPosition(node.mLocation);
             nodeMarker.setIcon(nodeIcon);
+
+            //Custom bubble if needed
+            //MyInfoWindow infoWindowNode = new MyInfoWindow(R.layout.bonuspack_bubble, map, node.mLocation);
+            //nodeMarker.setInfoWindow(infoWindowNode);
+
             nodeMarker.setTitle("Step "+i);
             nodeMarker.setSnippet(node.mInstructions);
             nodeMarker.setSubDescription(Road.getLengthDurationText(this, node.mLength, node.mDuration));

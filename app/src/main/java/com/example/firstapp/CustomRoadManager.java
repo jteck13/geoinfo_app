@@ -23,18 +23,18 @@ import java.util.ArrayList;
 
 
 
-public class customRoadManager extends RoadManager {
+public class CustomRoadManager extends RoadManager {
 
-    static final String OPENROUTE_GUIDANCE_SERVICE = "https://api.openrouteservice.org/v2/directions/driving-car?";
-    protected String mApiKey;
+    private static final String OPENROUTE_GUIDANCE_SERVICE = "https://api.openrouteservice.org/v2/directions/driving-car?";
+    private String mApiKey;
 
-    public customRoadManager(String apiKey){
+    protected CustomRoadManager(String apiKey){
         super();
         mApiKey = apiKey;
     }
 
 
-    protected String getUrl(ArrayList<GeoPoint> waypoints) {
+    private String getUrl(ArrayList<GeoPoint> waypoints) {
         StringBuilder urlString = new StringBuilder(OPENROUTE_GUIDANCE_SERVICE);
 
         urlString.append("api_key="+mApiKey);

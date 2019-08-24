@@ -22,7 +22,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="Map">
+        <activity android:name="Map" android:hardwareAccelerated="false">
         </activity>
         <activity android:name="Test">
         </activity>

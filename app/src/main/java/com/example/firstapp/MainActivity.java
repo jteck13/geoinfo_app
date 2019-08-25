@@ -30,7 +30,15 @@ public class MainActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private double longitude;
     private double latitude;
-//test
+    private EditText xCoordOne;
+    private EditText yCoordOne;
+    private EditText xCoordTwo;
+    private EditText yCoordTwo;
+    private Button btn;
+    private ImageButton map;
+    private Button getLocationOne;
+    private Button getLocationTwo;
+
 
 
     @Override
@@ -38,28 +46,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //set font size of Ergebnis
-        TextView resultText = (TextView) findViewById(R.id.text_test);
+        TextView resultText = findViewById(R.id.text_test);
         resultText.setTextSize(25);
 
         //Textfields with Hint for Input
-        final EditText xCoordOne = (EditText) findViewById(R.id.x_one);
+        xCoordOne =  findViewById(R.id.x_one);
         xCoordOne.setHint("X-Koordinate 1");
-
-        final EditText yCoordOne = (EditText) findViewById(R.id.y_one);
+        yCoordOne =  findViewById(R.id.y_one);
         yCoordOne.setHint("Y-Koordinate 1");
-
-        final EditText xCoordTwo = (EditText) findViewById(R.id.x_two);
+        xCoordTwo =  findViewById(R.id.x_two);
         xCoordTwo.setHint("X-Koordinate 2");
-
-        final EditText yCoordTwo = (EditText) findViewById(R.id.y_two);
+        yCoordTwo =  findViewById(R.id.y_two);
         yCoordTwo.setHint("Y-Koordinate 2");
 
         //Create Buttons
-        final Button btn = (Button) findViewById(R.id.test_button);
-        final ImageButton map = (ImageButton) findViewById(R.id.map);
-        final Button getLocationOne = (Button) findViewById(R.id.first_button);
-        final Button getLocationTwo = (Button) findViewById(R.id.second_button);
+        btn =  findViewById(R.id.start);
+        map =  findViewById(R.id.map);
+        getLocationOne =  findViewById(R.id.first_button);
+        getLocationTwo =  findViewById(R.id.second_button);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -67,16 +73,16 @@ public class MainActivity extends AppCompatActivity {
         getLocationOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (checkLocationPermission() == false) {
-                    requestPermission();
-                    getLoc();
-                    xCoordOne.setText(String.valueOf(longitude));
-                    yCoordOne.setText(String.valueOf(latitude));
-                } else {
-                    getLoc();
-                    xCoordOne.setText(String.valueOf(longitude));
-                    yCoordOne.setText(String.valueOf(latitude));
-                }
+                xCoordOne.setText(String.valueOf(longitude));
+                yCoordOne.setText(String.valueOf(latitude));
+            }
+        });
+
+        getLocationTwo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                xCoordTwo.setText(String.valueOf(longitude));
+                yCoordTwo.setText(String.valueOf(latitude));
             }
         });
 
@@ -84,14 +90,11 @@ public class MainActivity extends AppCompatActivity {
 
             //when Button clicked
             public void onClick(View v) {
-
                 // get user input and parse to Double
                 double x1;
                 double y1;
                 double x2;
                 double y2;
-
-
                 x1 = Math.toRadians(Double.parseDouble(xCoordOne.getText().toString()));
                 y1 = Math.toRadians(Double.parseDouble(yCoordOne.getText().toString()));
                 x2 = Math.toRadians(Double.parseDouble(xCoordTwo.getText().toString()));
@@ -101,21 +104,16 @@ public class MainActivity extends AppCompatActivity {
                 // great circle distance in radians
                 double angle1 = Math.acos(Math.sin(x1) * Math.sin(x2)
                         + Math.cos(x1) * Math.cos(x2) * Math.cos(y1 - y2));
-
                 // convert back to degrees
                 angle1 = Math.toDegrees(angle1);
-
                 // each degree on a great circle of Earth is 111 km
                 double distance1 = 111 * angle1;
-
                 //Double in two decimal places
                 DecimalFormat df2 = new DecimalFormat("#.##");
                 String result = df2.format(distance1);
-
                 //to Textfield
                 EditText ergebnis = (EditText) findViewById(R.id.ergebnis);
                 ergebnis.setText(result + " km");
-
                 map.setVisibility(View.VISIBLE);
             }
         });
@@ -133,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                         // The 'which' argument contains the index position
                         // of the selected item
                         int optId = which;
-
                         double x1new = Double.parseDouble(xCoordOne.getText().toString());
                         double y1new = Double.parseDouble(yCoordOne.getText().toString());
                         double x2new = Double.parseDouble(xCoordTwo.getText().toString());
@@ -154,6 +151,8 @@ public class MainActivity extends AppCompatActivity {
                 builder.show();
             }
         });
+        // get current location
+        getLoc();
     }
 
 
@@ -183,8 +182,6 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(this, "Location Permission finally denied, Elements removed", Toast.LENGTH_LONG).show();
                         Button  vonl = (Button) findViewById(R.id.first_button);
                         vonl.setVisibility(View.GONE);
-                      //  Button  nachl = (Button) findViewById(R.id.locbuttonnach);
-                      //  nachl.setVisibility(View.GONE);
                     }
                 }
             }
@@ -199,13 +196,10 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Location location) {
                             // Got last known location. In some rare situations this can be null.
-
-
                             if (location != null) {
                                 // Logic to handle location object
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
-
                             }else{
                                 Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
                             }
@@ -213,8 +207,8 @@ public class MainActivity extends AppCompatActivity {
                     });
         } else {
             requestPermission();
-
         }
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)

@@ -11,6 +11,7 @@ import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.Road;
@@ -19,6 +20,7 @@ import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.events.MapEventsReceiver;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.MapEventsOverlay;
@@ -58,13 +60,23 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         routingStart = setGeop(x1, y1);
         routingEnd = setGeop(x2, y2);
 
+        ArrayList <GeoPoint> bobox = new ArrayList<>();
+        bobox.add(start);
+        bobox.add(end);
+
+        Log.d("lat", String.valueOf(y1));
+        Log.d("long", String.valueOf(x1));
+
+
         //create mapcontroller and initial map
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this);
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         mapController = map.getController();
-        mapController.setZoom(15.00);
-        mapController.setCenter(start);
+        map.setMinZoomLevel(7.0);
+        //mapController.setZoom(15.00);
+        //mapController.setCenter(start);
+        map.invalidate();
 
         // draw marker at start and end
         drawMarker(start);
@@ -79,11 +91,40 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         //create routingline
         Polyline roadOverlay = roadManager.buildRoadOverlay(road);
         map.getOverlays().add(roadOverlay);
+        map.invalidate();
         //set nodes on legs
         setNodes(road);
         map.invalidate();
         //show routing info
         showInfo(routingOpt, road);
+        setBoundingBox(x1, x2, y1, y2);
+        map.invalidate();
+    }
+
+    public void setBoundingBox(double x1, double x2, double y1, double y2){
+
+        double north;
+        double south;
+        double west;
+        double east;
+
+        if(y1>y2){
+            north = y1;
+            south = y2;
+        } else{
+            north = y2;
+            south = y1;
+        }
+        if(x1>x2){
+            east = x1;
+            west = x2;
+        } else{
+            east = x2;
+            west = x1;
+        }
+        BoundingBox bbox = new BoundingBox(north, east, south, west);
+        map.zoomToBoundingBox(bbox, true);
+        map.invalidate();
     }
 
     public void onResume(){

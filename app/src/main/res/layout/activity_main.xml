@@ -25,7 +25,7 @@
         android:textColor="#000000" />
 
     <Button
-        android:id="@+id/test_button"
+        android:id="@+id/start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/second_button"
@@ -37,14 +37,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/y_one"
-        android:text="Get Location" />
+        android:text="Set current location as startpoint" />
 
     <Button
         android:id="@+id/second_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/y_two"
-        android:text="Get Location" />
+        android:text="Set current location as endpoint" />
 
 
     <EditText
@@ -54,9 +54,9 @@
         android:layout_below="@id/text_test"
         android:layout_alignStart="@+id/result"
         android:layout_alignLeft="@+id/result"
-        android:layout_marginStart="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="-280dp"
+        android:layout_marginStart="-4dp"
+        android:layout_marginLeft="-4dp"
+        android:layout_marginTop="-344dp"
         android:ems="7"
         android:inputType="numberDecimal|numberSigned" />
 
@@ -88,7 +88,7 @@
         android:id="@+id/ergebnis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/test_button"
+        android:layout_below="@id/start"
         android:layout_alignStart="@+id/result"
         android:layout_alignLeft="@+id/result"
         android:layout_marginTop="19dp"
@@ -103,6 +103,7 @@
         android:layout_below="@id/ergebnis"
         android:src="@drawable/ic_map"
         android:visibility="gone"/>
+
 
 
 

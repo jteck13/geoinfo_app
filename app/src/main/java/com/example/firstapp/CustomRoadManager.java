@@ -24,14 +24,14 @@ public class CustomRoadManager extends RoadManager {
     private String mOptions;
     private Context mContext;
 
-    protected CustomRoadManager(Context context, String apiKey, String profile){
+    CustomRoadManager(Context context, String apiKey, String profile){
         super();
         mContext = context;
         mApiKey = apiKey;
         mOptions = profile;
     }
 
-    static final HashMap<String, Integer> MANEUVERS;
+    private static final HashMap<String, Integer> MANEUVERS;
     static {
         MANEUVERS = new HashMap<>();
         MANEUVERS.put("Links abbiegen", 0);
@@ -113,12 +113,12 @@ public class CustomRoadManager extends RoadManager {
             int len = coords.length();
             int n = coords.length();
             road.mRouteHigh = new ArrayList<>(n);
-
             JSONObject jLeg = jPath.getJSONObject("properties");
             JSONArray jSeg = jLeg.getJSONArray("segments");
             JSONObject segments = jSeg.getJSONObject(0);
             road.mLength = segments.getDouble("distance") / 1000;
             road.mDuration = segments.getDouble("duration");
+            //road.mBoundingBox = BoundingBox.fromGeoPoints(road.mRouteHigh);
             JSONArray steps = segments.getJSONArray("steps");
 
             //setting up roads
@@ -147,19 +147,8 @@ public class CustomRoadManager extends RoadManager {
             }
 
 
-            // Bounding Box
-            /*
-            JSONArray jBoundingBox = jRoot.getJSONArray("bbox");
-            double lat = jBoundingBox.getDouble(1);
 
-            Log.d("bb", String.valueOf(jBoundingBox));
 
-            road.mBoundingBox = new BoundingBox(jBoundingBox.getDouble(3),
-                    jBoundingBox.getDouble(2),
-                    jBoundingBox.getDouble(1),
-                    jBoundingBox.getDouble(0));
-
-             */
 
         } catch (JSONException e) {
             e.printStackTrace();

@@ -5,11 +5,14 @@
 
 package com.example.firstapp;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.Road;
@@ -52,29 +55,23 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
 
         //inflate and create the map
-
         Bundle extras = getIntent().getExtras();
-
         assert extras != null;
-        final double x1 = extras.getDouble("x1");
-        final double y1 = extras.getDouble("y1");
-        final double x2 = extras.getDouble("x2");
-        final double y2 = extras.getDouble("y2");
+        double x1 = extras.getDouble("x1");
+        double y1 = extras.getDouble("y1");
+        double x2 = extras.getDouble("x2");
+        double y2 = extras.getDouble("y2");
+        int routingOpt = extras.getInt(("option"));
 
         start = new GeoPoint(y1, x1);
         end = new GeoPoint(y2, x2);
+
+
 
         GeoPoint routingStart = new GeoPoint(x1, y1);
         GeoPoint routingEnd = new GeoPoint(x2, y2);
 
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this);
-        /*
-        Marker startMarker = new Marker(map);
-        startMarker.setPosition(start);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        map.getOverlays().add(startMarker);
-        */
-
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         mapController = map.getController();
@@ -101,6 +98,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         //Create Marker-Overlay
         map.getOverlays().add(startMarker);
         map.getOverlays().add(endMarker);
+        map.invalidate();
 
         //Create line between the markers
         /*
@@ -116,7 +114,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
 
          */
 
-        RoadManager roadManager = new CustomRoadManager("5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb");
+        RoadManager roadManager = new CustomRoadManager(this,"5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb", getRoutingOption(routingOpt));
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         waypoints.add(routingStart);
         waypoints.add(routingEnd);
@@ -129,34 +127,16 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
             Marker nodeMarker = new Marker(map);
             nodeMarker.setPosition(node.mLocation);
             nodeMarker.setIcon(nodeIcon);
-
-            //Custom bubble if needed
-            //MyInfoWindow infoWindowNode = new MyInfoWindow(R.layout.bonuspack_bubble, map, node.mLocation);
-            //nodeMarker.setInfoWindow(infoWindowNode);
-
             nodeMarker.setTitle("Step "+i);
             nodeMarker.setSnippet(node.mInstructions);
             nodeMarker.setSubDescription(Road.getLengthDurationText(this, node.mLength, node.mDuration));
             map.getOverlays().add(nodeMarker);
         }
+        map.invalidate();
         map.getOverlays().add(roadOverlay);
         map.invalidate();
 
-
-        /*
-        Button btnNew = findViewById(R.id.testNew);
-
-        btnNew.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent openTest = new Intent(Map.this, Test.class);
-                Map.this.startActivity(openTest);
-                Log.i("New Test", "Test");
-            }
-        });
-
-
-         */
+        showInfo(routingOpt, road);
     }
 
     public void onResume(){
@@ -177,6 +157,18 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    private String getRoutingOption(int opt){
+        String routingOpt = null;
+        if(opt == 0){
+            routingOpt = "driving-car";
+        } else if(opt == 1){
+            routingOpt = "cycling-regular";
+        } else{
+            routingOpt = "foot-walking";
+        }
+        return routingOpt;
+    }
+
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint p) {
         MyInfoWindow.closeAllInfoWindowsOn(map);
@@ -186,5 +178,38 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     @Override
     public boolean longPressHelper(GeoPoint p) {
         return false;
+    }
+
+    public void showInfo(int routingOpt, Road road){
+        String kind = "";
+        String durationLength = Road.getLengthDurationText(this, road.mLength, road.mDuration);
+        String[] split = durationLength.split("\\,");
+        String duration = split[1];
+        String length = split[0];
+
+        switch (routingOpt) {
+
+            case 0:
+                new AlertDialog.Builder(this)
+                    .setTitle(R.string.titleInfo)
+                    .setMessage("Auto\nDie benötigte Zeit beträgt" + duration+".\nNoch " + length + " bis zum Ziel.")
+                    .setNegativeButton(R.string.schliessen, null)
+                    .show();
+                break;
+            case 1:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.titleInfo)
+                        .setMessage("Fahrrad\n\nDie benötigte Zeit beträgt " + duration+".\n\nNoch " + length + " bis zum Ziel.")
+                        .setNegativeButton(R.string.schliessen, null)
+                        .show();
+                break;
+            case 2:
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.titleInfo)
+                        .setMessage("Zu Fuß\n\nDie benötigte Zeit beträgt " + duration+".\n\nNoch " + length + " bis zum Ziel.")
+                        .setNegativeButton(R.string.schliessen, null)
+                        .show();
+                break;
+        }
     }
 }

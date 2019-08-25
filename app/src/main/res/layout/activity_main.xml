@@ -10,7 +10,7 @@
         android:id="@+id/result"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Distanzrechner"
+        android:text="@string/distanzrechner"
         android:textSize="30dp"/>
 
     <TextView

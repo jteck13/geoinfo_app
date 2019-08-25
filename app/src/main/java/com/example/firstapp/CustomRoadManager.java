@@ -1,42 +1,86 @@
 package com.example.firstapp;
 
+import android.content.Context;
 import android.util.Log;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osmdroid.bonuspack.routing.Road;
-import org.osmdroid.bonuspack.routing.RoadLeg;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.bonuspack.utils.BonusPackHelper;
-import org.osmdroid.bonuspack.utils.PolylineEncoder;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 
 
 public class CustomRoadManager extends RoadManager {
 
-    private static final String OPENROUTE_GUIDANCE_SERVICE = "https://api.openrouteservice.org/v2/directions/driving-car?";
+    private static final String OPENROUTE_GUIDANCE_SERVICE = "https://api.openrouteservice.org/v2/directions/";
     private String mApiKey;
+    private String mOptions;
+    private Context mContext;
 
-    protected CustomRoadManager(String apiKey){
+    protected CustomRoadManager(Context context, String apiKey, String profile){
         super();
+        mContext = context;
         mApiKey = apiKey;
+        mOptions = profile;
+    }
+
+    static final HashMap<String, Integer> MANEUVERS;
+    static {
+        MANEUVERS = new HashMap<>();
+        MANEUVERS.put("Links abbiegen", 0);
+        MANEUVERS.put("Rechts abbiegen", 1);
+        MANEUVERS.put("Scharf links abbiegen", 2);
+        MANEUVERS.put("Scharf rechts abbiegen", 3);
+        MANEUVERS.put("Leicht links", 4);
+        MANEUVERS.put("Leicht rechts", 5);
+        MANEUVERS.put("Geradeaus", 6);
+        MANEUVERS.put("In den Kreisverkehr einfahren", 7);
+        MANEUVERS.put("Aus dem Kreisverkehr raus fahren", 8);
+        MANEUVERS.put("Bitte wenden", 9);
+        MANEUVERS.put("Ziel", 10);
+        MANEUVERS.put("Start", 11);
+        MANEUVERS.put("Links halten", 12);
+        MANEUVERS.put("Rechts halten", 13);
+    }
+
+    static final HashMap<Integer, Object> DIRECTIONS;
+    static {
+        DIRECTIONS = new HashMap<>();
+        DIRECTIONS.put(0, R.string.manouver_0);
+        DIRECTIONS.put(1, R.string.manouver_1);
+        DIRECTIONS.put(2, R.string.manouver_2);
+        DIRECTIONS.put(3, R.string.manouver_3);
+        DIRECTIONS.put(4, R.string.manouver_4);
+        DIRECTIONS.put(5, R.string.manouver_5);
+        DIRECTIONS.put(6, R.string.manouver_6);
+        DIRECTIONS.put(7, R.string.manouver_7);
+        DIRECTIONS.put(8, R.string.manouver_8);
+        DIRECTIONS.put(9, R.string.manouver_9);
+        DIRECTIONS.put(10, R.string.manouver_10);
+        DIRECTIONS.put(11, R.string.manouver_11);
+        DIRECTIONS.put(12, R.string.manouver_12);
+        DIRECTIONS.put(13, R.string.manouver_13);
+    }
+
+    //route options
+    @Override
+    public void addRequestOption(String requestOption){
+        mOptions =   requestOption + "?";
     }
 
 
     private String getUrl(ArrayList<GeoPoint> waypoints) {
         StringBuilder urlString = new StringBuilder(OPENROUTE_GUIDANCE_SERVICE);
 
+        addRequestOption(mOptions);
+        urlString.append(mOptions);
         urlString.append("api_key="+mApiKey);
         urlString.append("&start=");
         GeoPoint p = waypoints.get(0);
@@ -51,9 +95,7 @@ public class CustomRoadManager extends RoadManager {
 
     public Road getRoad(ArrayList<GeoPoint> waypoints) {
         String url = getUrl(waypoints);
-        Log.d(BonusPackHelper.LOG_TAG, "ORS.getRoads:" + url);
         String jString = BonusPackHelper.requestStringFromUrl(url);
-        Log.d("result", jString);
         if (jString == null) {
             Log.d("err1", "error");
             return new Road(waypoints);
@@ -69,7 +111,6 @@ public class CustomRoadManager extends RoadManager {
             //coords
             JSONArray coords = route_geometry.getJSONArray("coordinates");
             int len = coords.length();
-            Log.d("len", String.valueOf(coords));
             int n = coords.length();
             road.mRouteHigh = new ArrayList<>(n);
 
@@ -80,12 +121,6 @@ public class CustomRoadManager extends RoadManager {
             road.mDuration = segments.getDouble("duration");
             JSONArray steps = segments.getJSONArray("steps");
 
-            int r = steps.length();
-
-            Log.d("prop", String.valueOf(r));
-
-
-
             for (int i = 0; i < n; i++) {
 
                 JSONArray point = coords.getJSONArray(i);
@@ -93,8 +128,6 @@ public class CustomRoadManager extends RoadManager {
                 double lon = point.getDouble(1);
                 GeoPoint p = new GeoPoint(lon, lat);
                 road.mRouteHigh.add(p);
-                RoadNode lastNode = null;
-
             }
 
             for (int l=0; l<steps.length(); l++) {
@@ -103,9 +136,12 @@ public class CustomRoadManager extends RoadManager {
                 node.mLength = step.getDouble("distance")/1000;
                 node.mDuration = step.getDouble("duration");
                 JSONArray wayp = step.getJSONArray("way_points");
+                int instruction = step.getInt("type");
+                String roadName = step.getString( "name");
+                Log.d("name", roadName);
                 int positionIndex =  wayp.getInt(0);
-                Log.d("wayp", String.valueOf(step));
                 node.mLocation = road.mRouteHigh.get(positionIndex);
+                node.mInstructions = buildInstructions(instruction, roadName);
                 road.mNodes.add(node);
             }
 
@@ -143,17 +179,20 @@ public class CustomRoadManager extends RoadManager {
         return roads;
     }
 
-    /** Road Link is a portion of road between 2 "nodes" or intersections */
-    class RoadLink {
-        /** in km/h */
-        public double mSpeed;
-        /** in km */
-        public double mLength;
-        /** in sec */
-        public double mDuration;
-        /** starting point of the link, as index in initial polyline */
-        public int mShapeIndex;
+    protected String buildInstructions(int maneuver, String roadName){
+        Integer resDirection = (Integer) DIRECTIONS.get(maneuver);
+
+        if (resDirection == null) {
+            return null;
+        }
+
+        String direction = mContext.getString(resDirection);
+        String instructions = null;
+        if(roadName.equals("-")){
+            instructions = direction;
+        } else{
+            instructions = direction + "\n auf " + roadName;
+        }
+        return instructions;
     }
-
-
 }

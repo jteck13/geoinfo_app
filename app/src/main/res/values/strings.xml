@@ -1,3 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <resources>
     <string name="app_name">Distanzrechner</string>
+    <string name="distanzrechner">Distanzrechner</string>
+    <string name="title_alert">Test alert</string>
+    <string name="title_opt">Bitte wählen Sie Ihre Routingoption:</string>
+    <string name="titleInfo">Starte Routing</string>
+    <string name="schliessen">Schließen</string>
+
+
+    <string name="manouver_0">Links abbiegen</string>
+    <string name="manouver_1">Rechts abbiegen</string>
+    <string name="manouver_2">Scharf links abbiegen</string>
+    <string name="manouver_3">Scharf rechts abbiegen</string>
+    <string name="manouver_4">Leicht links abbiegen</string>
+    <string name="manouver_5">Leicht rechts abbiegen</string>
+    <string name="manouver_6">Geradeaus</string>
+    <string name="manouver_7">In den Kreisverkehr einfahren</string>
+    <string name="manouver_8">Aus dem Kreisverkehr raus fahren</string>
+    <string name="manouver_9">Bitte wenden</string>
+    <string name="manouver_10">Ziel</string>
+    <string name="manouver_11">Start</string>
+    <string name="manouver_12">Links halten</string>
+    <string name="manouver_13">Rechts halten</string>
+
+
+
 </resources>
+
+
+
+
+

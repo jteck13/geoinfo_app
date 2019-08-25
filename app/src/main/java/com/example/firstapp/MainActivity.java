@@ -1,10 +1,12 @@
 package com.example.firstapp;
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -62,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
 
-
         getLocationOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
                     getLoc();
                     xCoordOne.setText(String.valueOf(longitude));
                     yCoordOne.setText(String.valueOf(latitude));
-                }else{
+                } else {
                     getLoc();
                     xCoordOne.setText(String.valueOf(longitude));
                     yCoordOne.setText(String.valueOf(latitude));
@@ -113,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //to Textfield
                 EditText ergebnis = (EditText) findViewById(R.id.ergebnis);
-                ergebnis.setText(result+" km");
+                ergebnis.setText(result + " km");
 
                 map.setVisibility(View.VISIBLE);
             }
@@ -125,23 +126,36 @@ public class MainActivity extends AppCompatActivity {
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             public void onClick(View v) {
 
-                double x1new = Double.parseDouble(xCoordOne.getText().toString());
-                double y1new = Double.parseDouble(yCoordOne.getText().toString());
-                double x2new = Double.parseDouble(xCoordTwo.getText().toString());
-                double y2new = Double.parseDouble(yCoordTwo.getText().toString());
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.title_opt);
+                builder.setItems(R.array.routingOpt, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // The 'which' argument contains the index position
+                        // of the selected item
+                        int optId = which;
 
-                Intent openMap = new Intent(MainActivity.this, Map.class);
+                        double x1new = Double.parseDouble(xCoordOne.getText().toString());
+                        double y1new = Double.parseDouble(yCoordOne.getText().toString());
+                        double x2new = Double.parseDouble(xCoordTwo.getText().toString());
+                        double y2new = Double.parseDouble(yCoordTwo.getText().toString());
 
-                Bundle b = new Bundle();
-                b.putDouble("x1", x1new);
-                b.putDouble("y1", y1new);
-                b.putDouble("x2", x2new);
-                b.putDouble("y2", y2new);
-                openMap.putExtras(b);
-                MainActivity.this.startActivity(openMap);
+                        Intent openMap = new Intent(MainActivity.this, Map.class);
+
+                        Bundle b = new Bundle();
+                        b.putDouble("x1", x1new);
+                        b.putDouble("y1", y1new);
+                        b.putDouble("x2", x2new);
+                        b.putDouble("y2", y2new);
+                        b.putInt("option", optId);
+                        openMap.putExtras(b);
+                        MainActivity.this.startActivity(openMap);
+                    }
+                });
+                builder.show();
             }
         });
     }
+
 
     public void requestPermission(){
         ActivityCompat.requestPermissions(this, permissions, 1);

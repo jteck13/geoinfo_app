@@ -5,14 +5,12 @@
 
 package com.example.firstapp;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.Road;
@@ -34,27 +32,18 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     private IMapController mapController;
     private GeoPoint start;
     private GeoPoint end;
+    GeoPoint routingStart;
+    GeoPoint routingEnd;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
-
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
-
-        //handle permissions first, before map is created. not depicted here
-
-        //load/initialize the osmdroid configuration, this can be done
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
 
-        //inflate and create the map
+        // retrieve data from MainActivity
         Bundle extras = getIntent().getExtras();
         assert extras != null;
         double x1 = extras.getDouble("x1");
@@ -63,79 +52,37 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         double y2 = extras.getDouble("y2");
         int routingOpt = extras.getInt(("option"));
 
-        start = new GeoPoint(y1, x1);
-        end = new GeoPoint(y2, x2);
+        // creat neccessary geopoints
+        start = setGeop(y1, x1);
+        end = setGeop(y2, x2);
+        routingStart = setGeop(x1, y1);
+        routingEnd = setGeop(x2, y2);
 
-
-
-        GeoPoint routingStart = new GeoPoint(x1, y1);
-        GeoPoint routingEnd = new GeoPoint(x2, y2);
-
+        //create mapcontroller and initial map
         MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this);
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         mapController = map.getController();
         mapController.setZoom(15.00);
         mapController.setCenter(start);
-        //GeoPoint center = new GeoPoint(52.2799112,8.0471788);
-        //map.zoomToBoundingBox(getBoundingBox(start, end), true);
 
+        // draw marker at start and end
+        drawMarker(start);
+        drawMarker(end);
 
-        //Start-Marker
-        Marker startMarker = new Marker(map);
-        startMarker.setPosition(start);
-        startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        MyInfoWindow infoWindowStart = new MyInfoWindow(R.layout.bonuspack_bubble, map, start);
-        startMarker.setInfoWindow(infoWindowStart);
-
-        //End-Marker
-        Marker endMarker = new Marker(map);
-        endMarker.setPosition(end);
-        endMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, end);
-        endMarker.setInfoWindow(infoWindowEnd);
-
-        //Create Marker-Overlay
-        map.getOverlays().add(startMarker);
-        map.getOverlays().add(endMarker);
-        map.invalidate();
-
-        //Create line between the markers
-        /*
-        List<GeoPoint> geoPoints = new ArrayList<>();
-        geoPoints.add(start);
-        geoPoints.add(end);
-        Polyline line = new Polyline();
-        line.setPoints(geoPoints);
-        map.getOverlayManager().add(line);
-        map.invalidate();
-        map.getOverlays().add( mapEventsOverlay);
-
-
-         */
-
+        //get routing
         RoadManager roadManager = new CustomRoadManager(this,"5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb", getRoutingOption(routingOpt));
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         waypoints.add(routingStart);
         waypoints.add(routingEnd);
         Road road = roadManager.getRoad(waypoints);
+        //create routingline
         Polyline roadOverlay = roadManager.buildRoadOverlay(road);
-        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
-
-        for (int i=0; i<road.mNodes.size(); i++){
-            RoadNode node = road.mNodes.get(i);
-            Marker nodeMarker = new Marker(map);
-            nodeMarker.setPosition(node.mLocation);
-            nodeMarker.setIcon(nodeIcon);
-            nodeMarker.setTitle("Step "+i);
-            nodeMarker.setSnippet(node.mInstructions);
-            nodeMarker.setSubDescription(Road.getLengthDurationText(this, node.mLength, node.mDuration));
-            map.getOverlays().add(nodeMarker);
-        }
-        map.invalidate();
         map.getOverlays().add(roadOverlay);
+        //set nodes on legs
+        setNodes(road);
         map.invalidate();
-
+        //show routing info
         showInfo(routingOpt, road);
     }
 
@@ -157,6 +104,17 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    @Override
+    public boolean singleTapConfirmedHelper(GeoPoint p) {
+        MyInfoWindow.closeAllInfoWindowsOn(map);
+        return false;
+    }
+
+    @Override
+    public boolean longPressHelper(GeoPoint p) {
+        return false;
+    }
+
     private String getRoutingOption(int opt){
         String routingOpt = null;
         if(opt == 0){
@@ -169,17 +127,6 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         return routingOpt;
     }
 
-    @Override
-    public boolean singleTapConfirmedHelper(GeoPoint p) {
-        MyInfoWindow.closeAllInfoWindowsOn(map);
-        return false;
-    }
-
-    @Override
-    public boolean longPressHelper(GeoPoint p) {
-        return false;
-    }
-
     public void showInfo(int routingOpt, Road road){
         String kind = "";
         String durationLength = Road.getLengthDurationText(this, road.mLength, road.mDuration);
@@ -188,7 +135,6 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         String length = split[0];
 
         switch (routingOpt) {
-
             case 0:
                 new AlertDialog.Builder(this)
                     .setTitle(R.string.titleInfo)
@@ -210,6 +156,124 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
                         .setNegativeButton(R.string.schliessen, null)
                         .show();
                 break;
+        }
+    }
+
+    public GeoPoint setGeop(double x, double y){
+        GeoPoint p = new GeoPoint(x, y);
+        return p;
+    }
+
+    public void drawMarker(GeoPoint point){
+
+        Marker marker = new Marker(map);
+        marker.setPosition(point);
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
+        MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, end);
+        marker.setInfoWindow(infoWindowEnd);
+        map.getOverlays().add(marker);
+        map.invalidate();
+    }
+
+    public void setNodes(Road road){
+        Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
+        int mCode;
+
+        for (int i=0; i<road.mNodes.size(); i++){
+            RoadNode node = road.mNodes.get(i);
+            mCode = node.mManeuverType;
+            Marker nodeMarker = new Marker(map);
+            nodeMarker.setPosition(node.mLocation);
+            nodeMarker.setIcon(nodeIcon);
+            nodeMarker.setTitle("Schritt "+i);
+            nodeMarker.setSnippet(node.mInstructions);
+            nodeMarker.setSubDescription(Road.getLengthDurationText(this, node.mLength, node.mDuration));
+
+            switch (mCode){
+                case 0:
+                    Drawable icon0 = getResources().getDrawable(R.drawable.ic_turn_left);
+                    nodeMarker.setImage(icon0);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 1:
+                    Drawable icon1 = getResources().getDrawable(R.drawable.ic_turn_right);
+                    nodeMarker.setImage(icon1);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 2:
+                    Drawable icon2 = getResources().getDrawable(R.drawable.ic_sharp_left);
+                    nodeMarker.setImage(icon2);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 3:
+                    Drawable icon3 = getResources().getDrawable(R.drawable.ic_sharp_right);
+                    nodeMarker.setImage(icon3);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 4:
+                    Drawable icon4 = getResources().getDrawable(R.drawable.ic_slight_left);
+                    nodeMarker.setImage(icon4);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 5:
+                    Drawable icon5 = getResources().getDrawable(R.drawable.ic_slight_right);
+                    nodeMarker.setImage(icon5);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 6:
+                    Drawable icon6 = getResources().getDrawable(R.drawable.ic_continue);
+                    nodeMarker.setImage(icon6);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 7:
+                    Drawable icon7 = getResources().getDrawable(R.drawable.ic_roundabout);
+                    nodeMarker.setImage(icon7);
+                    map.getOverlays().add(nodeMarker);
+                    break;
+                case 8:
+                    Drawable icon8 = getResources().getDrawable(R.drawable.ic_empty);
+                    nodeMarker.setImage(icon8);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 9:
+                    Drawable icon9 = getResources().getDrawable(R.drawable.ic_u_turn);
+                    nodeMarker.setImage(icon9);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 10:
+                    Drawable icon10 = getResources().getDrawable(R.drawable.ic_arrived);
+                    nodeMarker.setImage(icon10);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 11:
+                    Drawable icon11 = getResources().getDrawable(R.drawable.ic_empty);
+                    nodeMarker.setImage(icon11);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 12:
+                    Drawable icon12 = getResources().getDrawable(R.drawable.ic_empty);
+                    nodeMarker.setImage(icon12);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+                case 13:
+                    Drawable icon13 = getResources().getDrawable(R.drawable.ic_empty);
+                    nodeMarker.setImage(icon13);
+                    map.getOverlays().add(nodeMarker);
+                    map.invalidate();
+                    break;
+            }
         }
     }
 }

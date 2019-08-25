@@ -121,6 +121,7 @@ public class CustomRoadManager extends RoadManager {
             road.mDuration = segments.getDouble("duration");
             JSONArray steps = segments.getJSONArray("steps");
 
+            //setting up roads
             for (int i = 0; i < n; i++) {
 
                 JSONArray point = coords.getJSONArray(i);
@@ -129,17 +130,17 @@ public class CustomRoadManager extends RoadManager {
                 GeoPoint p = new GeoPoint(lon, lat);
                 road.mRouteHigh.add(p);
             }
-
+            //setting up nodes
             for (int l=0; l<steps.length(); l++) {
                 RoadNode node = new RoadNode();
                 JSONObject step = steps.getJSONObject(l);
-                node.mLength = step.getDouble("distance")/1000;
-                node.mDuration = step.getDouble("duration");
                 JSONArray wayp = step.getJSONArray("way_points");
+                int positionIndex =  wayp.getInt(0);
                 int instruction = step.getInt("type");
                 String roadName = step.getString( "name");
-                Log.d("name", roadName);
-                int positionIndex =  wayp.getInt(0);
+                node.mLength = step.getDouble("distance")/1000;
+                node.mDuration = step.getDouble("duration");
+                node.mManeuverType = instruction;
                 node.mLocation = road.mRouteHigh.get(positionIndex);
                 node.mInstructions = buildInstructions(instruction, roadName);
                 road.mNodes.add(node);

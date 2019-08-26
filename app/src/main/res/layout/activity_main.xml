@@ -54,9 +54,9 @@
         android:layout_below="@id/text_test"
         android:layout_alignStart="@+id/result"
         android:layout_alignLeft="@+id/result"
-        android:layout_marginStart="-4dp"
-        android:layout_marginLeft="-4dp"
-        android:layout_marginTop="-344dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="-353dp"
         android:ems="7"
         android:inputType="numberDecimal|numberSigned" />
 

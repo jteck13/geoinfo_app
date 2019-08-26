@@ -110,7 +110,7 @@ public class CustomRoadManager extends RoadManager {
             JSONObject route_geometry = jPath.getJSONObject("geometry");
             //coords
             JSONArray coords = route_geometry.getJSONArray("coordinates");
-            int len = coords.length();
+            int len = coords.length(); //löschen!!
             int n = coords.length();
             road.mRouteHigh = new ArrayList<>(n);
             JSONObject jLeg = jPath.getJSONObject("properties");
@@ -145,10 +145,6 @@ public class CustomRoadManager extends RoadManager {
                 node.mInstructions = buildInstructions(instruction, roadName);
                 road.mNodes.add(node);
             }
-
-
-
-
 
         } catch (JSONException e) {
             e.printStackTrace();

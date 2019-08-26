@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
         TextView resultText = findViewById(R.id.text_test);
         resultText.setTextSize(25);
 
+        // Validation
+
         //Textfields with Hint for Input
         xCoordOne =  findViewById(R.id.x_one);
         xCoordOne.setHint("X-Koordinate 1");

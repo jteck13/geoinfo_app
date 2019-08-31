@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton map;
     private Button getLocationOne;
     private Button getLocationTwo;
+    private double distance1;
 
 
 
@@ -123,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     // convert back to degrees
                     angle1 = Math.toDegrees(angle1);
                     // each degree on a great circle of Earth is 111 km
-                    double distance1 = 111 * angle1;
+                    distance1 = 111 * angle1;
                     //Double in two decimal places
                     DecimalFormat df2 = new DecimalFormat("#.##");
                     String result = df2.format(distance1);
@@ -145,30 +146,34 @@ public class MainActivity extends AppCompatActivity {
 
             @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle(R.string.title_opt);
-                builder.setItems(R.array.routingOpt, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // The 'which' argument contains the index position
-                        // of the selected item
-                        double x1new = Double.parseDouble(xCoordOne.getText().toString());
-                        double y1new = Double.parseDouble(yCoordOne.getText().toString());
-                        double x2new = Double.parseDouble(xCoordTwo.getText().toString());
-                        double y2new = Double.parseDouble(yCoordTwo.getText().toString());
+                if (distance1 == 0) {
+                    showAlertZero();
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle(R.string.title_opt);
+                    builder.setItems(R.array.routingOpt, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // The 'which' argument contains the index position
+                            // of the selected item
+                            double x1new = Double.parseDouble(xCoordOne.getText().toString());
+                            double y1new = Double.parseDouble(yCoordOne.getText().toString());
+                            double x2new = Double.parseDouble(xCoordTwo.getText().toString());
+                            double y2new = Double.parseDouble(yCoordTwo.getText().toString());
 
-                        Intent openMap = new Intent(MainActivity.this, Map.class);
+                            Intent openMap = new Intent(MainActivity.this, Map.class);
 
-                        Bundle b = new Bundle();
-                        b.putDouble("x1", x1new);
-                        b.putDouble("y1", y1new);
-                        b.putDouble("x2", x2new);
-                        b.putDouble("y2", y2new);
-                        b.putInt("option", which);
-                        openMap.putExtras(b);
-                        MainActivity.this.startActivity(openMap);
-                    }
-                });
-                builder.show();
+                            Bundle b = new Bundle();
+                            b.putDouble("x1", x1new);
+                            b.putDouble("y1", y1new);
+                            b.putDouble("x2", x2new);
+                            b.putDouble("y2", y2new);
+                            b.putInt("option", which);
+                            openMap.putExtras(b);
+                            MainActivity.this.startActivity(openMap);
+                        }
+                    });
+                    builder.show();
+                }
             }
         });
         // get current location
@@ -200,6 +205,13 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    public void showAlertZero(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Achtung!");
+        builder.setMessage("Startpunkt darf nicht Endpunkt sein.");
+        builder.setNegativeButton("Schliessen", null);
+        builder.show();
+    }
 
     public void requestPermission(){
         ActivityCompat.requestPermissions(this, permissions, 1);

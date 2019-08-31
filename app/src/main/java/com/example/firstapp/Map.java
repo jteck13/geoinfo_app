@@ -91,27 +91,25 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         Road road = roadManager.getRoad(waypoints);
         //create routingline
         Log.d("road", String.valueOf(road));
+
         if(road != null) {
             Polyline roadOverlay = roadManager.buildRoadOverlay(road);
             map.getOverlays().add(roadOverlay);
             map.invalidate();
-            //set nodes on legs
             setNodes(road);
             map.invalidate();
-            //show routing info
             showInfo(routingOpt, road);
             setBoundingBox(x1, x2, y1, y2);
             map.invalidate();
         }else{
             showAlert();
-
         }
     }
 
     public void showAlert(){
         AlertDialog.Builder builder = new AlertDialog.Builder(Map.this);
         builder.setTitle("Achtung!");
-        builder.setMessage("Eine Route konnte nicht gefunden werden. Bitte geben Sie andere Koordinaten ein!");
+        builder.setMessage("Eine Route konnte nicht gefunden werden. Bitte geben Sie andere Koordinaten ein, oder wählen eine andere Routenoption!");
         builder.setNegativeButton("Zurück zur Eingabe", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Intent openMain = new Intent(Map.this, MainActivity.class);

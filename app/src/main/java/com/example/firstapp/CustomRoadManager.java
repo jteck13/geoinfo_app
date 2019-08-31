@@ -95,7 +95,7 @@ public class CustomRoadManager extends RoadManager {
     public Road getRoad(ArrayList<GeoPoint> waypoints) {
         String url = getUrl(waypoints);
         String jString = BonusPackHelper.requestStringFromUrl(url);
-        if (jString == null) {
+        if(jString == null){
             Log.d("err1", "error");
             return new Road(waypoints);
         }
@@ -105,13 +105,15 @@ public class CustomRoadManager extends RoadManager {
             JSONObject jRoot = new JSONObject(jString);
             //features
             JSONObject status = jRoot.optJSONObject("error");
+
             if(status != null) {
                 int code = status.getInt("code");
-                if (code == 2010) {
-                    Log.d("err1", String.valueOf(code));
+                if(code == 2010){
+                    Log.d("err", String.valueOf(code));
                     return null;
                 }
             }
+
             JSONArray jPaths = jRoot.optJSONArray("features");
             JSONObject jPath = jPaths.getJSONObject(0);
             JSONObject route_geometry = jPath.getJSONObject("geometry");

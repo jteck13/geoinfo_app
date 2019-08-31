@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/distanzrechner"
-        android:textSize="30dp"/>
+        android:textSize="30sp"/>
 
     <TextView
         android:id="@+id/text_test"
@@ -21,7 +21,7 @@
         android:layout_marginLeft="25dp"
         android:layout_marginTop="387dp"
         android:layout_toRightOf="@id/ergebnis"
-        android:text="Ergebnis"
+        android:text="@string/ergebnis"
         android:textColor="#000000" />
 
     <Button
@@ -29,22 +29,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/second_button"
-        android:onClick="buttonClicked"
-        android:text="Start" />
+        android:text="@string/start" />
 
     <Button
         android:id="@+id/first_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/y_one"
-        android:text="Set current location as startpoint" />
+        android:text="@string/set_current_location_as_endpoint" />
 
     <Button
         android:id="@+id/second_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/y_two"
-        android:text="Set current location as endpoint" />
+        android:text="@string/set_current_location_as_endpoint" />
 
 
     <EditText
@@ -103,11 +102,4 @@
         android:layout_below="@id/ergebnis"
         android:src="@drawable/ic_map"
         android:visibility="gone"/>
-
-
-
-
-
-
-
 </RelativeLayout>

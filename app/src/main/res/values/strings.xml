@@ -23,7 +23,9 @@
     <string name="manouver_11">Start</string>
     <string name="manouver_12">Links halten</string>
     <string name="manouver_13">Rechts halten</string>
-
+    <string name="ergebnis">Ergebnis</string>
+    <string name="start">Start</string>
+    <string name="set_current_location_as_endpoint">Set current location as endpoint</string>
 
 
 </resources>

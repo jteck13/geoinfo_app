@@ -50,7 +50,7 @@ public class CustomRoadManager extends RoadManager {
         MANEUVERS.put("Rechts halten", 13);
     }
 
-    static final HashMap<Integer, Object> DIRECTIONS;
+    private static final HashMap<Integer, Object> DIRECTIONS;
     static {
         DIRECTIONS = new HashMap<>();
         DIRECTIONS.put(0, R.string.manouver_0);
@@ -75,20 +75,19 @@ public class CustomRoadManager extends RoadManager {
         mOptions =   requestOption + "?";
     }
 
-
     private String getUrl(ArrayList<GeoPoint> waypoints) {
         StringBuilder urlString = new StringBuilder(OPENROUTE_GUIDANCE_SERVICE);
 
         addRequestOption(mOptions);
         urlString.append(mOptions);
-        urlString.append("api_key="+mApiKey);
+        urlString.append("api_key=").append(mApiKey);
         urlString.append("&start=");
         GeoPoint p = waypoints.get(0);
         urlString.append(geoPointAsString(p));
 
         for (int i=1; i<waypoints.size(); i++){
             p = waypoints.get(i);
-            urlString.append("&end="+geoPointAsString(p));
+            urlString.append("&end=").append(geoPointAsString(p));
         }
         return urlString.toString();
     }
@@ -105,6 +104,14 @@ public class CustomRoadManager extends RoadManager {
         try {
             JSONObject jRoot = new JSONObject(jString);
             //features
+            JSONObject status = jRoot.optJSONObject("error");
+            if(status != null) {
+                int code = status.getInt("code");
+                if (code == 2010) {
+                    Log.d("err1", String.valueOf(code));
+                    return null;
+                }
+            }
             JSONArray jPaths = jRoot.optJSONArray("features");
             JSONObject jPath = jPaths.getJSONObject(0);
             JSONObject route_geometry = jPath.getJSONObject("geometry");
@@ -165,7 +172,7 @@ public class CustomRoadManager extends RoadManager {
         return roads;
     }
 
-    protected String buildInstructions(int maneuver, String roadName){
+    private String buildInstructions(int maneuver, String roadName){
         Integer resDirection = (Integer) DIRECTIONS.get(maneuver);
 
         if (resDirection == null) {
@@ -173,7 +180,7 @@ public class CustomRoadManager extends RoadManager {
         }
 
         String direction = mContext.getString(resDirection);
-        String instructions = null;
+        String instructions;
         if(roadName.equals("-")){
             instructions = direction;
         } else{

@@ -24,7 +24,6 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.MapEventsOverlay;
 import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
@@ -32,9 +31,7 @@ import java.util.ArrayList;
 
 public class Map extends AppCompatActivity implements MapEventsReceiver {
     private MapView map = null;
-    private GeoPoint end;
-    private GeoPoint routingStart;
-    private GeoPoint routingEnd;
+    private GeoPoint end, start;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,18 +51,19 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         int routingOpt = extras.getInt(("option"));
 
         // creat neccessary geopoints
-        GeoPoint start = setGeop(y1, x1);
+        Log.d("x1", String.valueOf(x1));
+        Log.d("x2", String.valueOf(x2));
+        Log.d("y1", String.valueOf(y1));
+        Log.d("y2", String.valueOf(y2));
+        start = setGeop(y1, x1);
         end = setGeop(y2, x2);
-        routingStart = setGeop(x1, y1);
-        routingEnd = setGeop(x2, y2);
+        GeoPoint routingStart = setGeop(x1, y1);
+        GeoPoint routingEnd = setGeop(x2, y2);
 
         //create mapcontroller and initial map
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
-        IMapController mapController = map.getController();
         map.setMinZoomLevel(7.0);
-        //mapController.setZoom(15.00);
-        //mapController.setCenter(start);
         map.invalidate();
 
         // draw marker at start and end
@@ -155,11 +153,12 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint point) {
         MyInfoWindow.closeAllInfoWindowsOn(map);
-        return false;
+        return true;
     }
 
     @Override
     public boolean longPressHelper(GeoPoint poi) {
+
         return false;
     }
 
@@ -207,8 +206,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     }
 
     private GeoPoint setGeop(double x, double y){
-        GeoPoint p = new GeoPoint(x, y);
-        return p;
+        return new GeoPoint(x, y);
     }
 
     private void drawMarker(GeoPoint point){
@@ -216,7 +214,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         Marker marker = new Marker(map);
         marker.setPosition(point);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, end);
+        MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, point);
         marker.setInfoWindow(infoWindowEnd);
         map.getOverlays().add(marker);
         map.invalidate();

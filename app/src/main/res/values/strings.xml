@@ -22,17 +22,12 @@
     <string name="manouver_11">Start</string>
     <string name="manouver_12">Links halten</string>
     <string name="manouver_13">Rechts halten</string>
-    <string name="ergebnis">Ergebnis</string>
-    <string name="start">Start</string>
     <string name="set_current_location_as_endpoint">Set current location as endpoint</string>
-    <string name="mapsimage">mapsimage</string>
     <string name="x_koordinate_1">X-Koordinate 1</string>
     <string name="y_koordinate_1">Y-Koordinate 1</string>
     <string name="x_koordinate_2">X-Koordinate 2</string>
     <string name="y_koordinate_2">Y-Koordinate 2</string>
     <string name="geopoint">Geo-Point</string>
-    <string name="lat">Latitude: </string>
-    <string name="longitude">Longitude: </string>
     <string name="start_nav">Start navigation</string>
     <string name="startEnd">Startpunkt darf nicht Endpunkt sein.</string>
 

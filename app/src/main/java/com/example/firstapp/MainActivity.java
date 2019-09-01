@@ -24,7 +24,7 @@ import java.lang.*;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
+    private final String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
     private FusedLocationProviderClient fusedLocationClient;
     private double longitude;
     private double latitude;
@@ -32,25 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText yCoordOne;
     private EditText xCoordTwo;
     private EditText yCoordTwo;
-    private ImageButton map;
-    private double distance1;
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
-        //set font size of Ergebnis
-        /*
-        TextView resultText = findViewById(R.id.text_test);
-        resultText.setTextSize(25);
-
-         */
-
-        // Validation
 
         //Textfields with Hint for Input
         xCoordOne =  findViewById(R.id.x_one);
@@ -60,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Create Buttons
         Button btn = findViewById(R.id.start);
-        map =  findViewById(R.id.map);
+        ImageButton map = findViewById(R.id.map);
         Button getLocationOne = findViewById(R.id.first_button);
         Button getLocationTwo = findViewById(R.id.second_button);
 
@@ -130,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
         int ly1 = yCoordOne.getText().toString().length();
         int ly2 = yCoordTwo.getText().toString().length();
 
+        double distance1;
         if (lx1 != 0 && lx2 != 0 && ly1 != 0 && ly2 != 0) {
             // check if correct pattern
 
@@ -189,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             showAlert();
         }else{
             validate = true;
-        };
+        }
         return validate;
     }
 

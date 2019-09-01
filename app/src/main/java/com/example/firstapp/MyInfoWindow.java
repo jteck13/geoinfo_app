@@ -22,18 +22,21 @@ public class MyInfoWindow extends InfoWindow {
     }
 
 
-    @SuppressLint("SetTextI18n")
     @Override
     public void onOpen(Object arg0) {
 
         coordX = point.getLatitude();
         coordY = point.getLongitude();
 
-        RelativeLayout layout =  mView.findViewById(R.id.bubble_layout);
+        RelativeLayout layout = (RelativeLayout) mView.findViewById(R.id.bubble_layout);
+        //Button btnMoreInfo = (Button) mView.findViewById(R.id.bubble_moreinfo);
         TextView txtTitle = (TextView) mView.findViewById(R.id.bubble_title);
         TextView txtDescription = (TextView) mView.findViewById(R.id.bubble_description);
+        //TextView txtSubdescription = (TextView) mView.findViewById(R.id.bubble_subdescription);
+
         txtTitle.setText(R.string.geopoint);
         txtDescription.setText("X-Koordinate: " + convertCoord(coordX)+"\nY-Koordinate: "+convertCoord(coordY));
+        //txtSubdescription.setText("You can also edit the subdescription");
     }
 
     @Override

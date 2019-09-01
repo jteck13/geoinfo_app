@@ -2,7 +2,7 @@
 
 <resources>
     <string name="app_name">Distanzrechner</string>
-    <string name="distanzrechner">Distanzrechner</string>
+    <string name="distanzrechner">Bitte geben Sie Ihre Start- und Ziel-\nposition ein:</string>
     <string name="title_opt">Bitte wählen Sie Ihre Routingoption:</string>
     <string name="titleInfo">Starte Routing</string>
     <string name="schliessen">Schließen</string>
@@ -23,6 +23,7 @@
     <string name="manouver_12">Links halten</string>
     <string name="manouver_13">Rechts halten</string>
     <string name="set_current_location_as_endpoint">Set current location as endpoint</string>
+    <string name="set_current_location_as_start">Set current location as startpoint</string>
     <string name="x_koordinate_1">X-Koordinate 1</string>
     <string name="y_koordinate_1">Y-Koordinate 1</string>
     <string name="x_koordinate_2">X-Koordinate 2</string>

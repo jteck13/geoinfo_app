@@ -10,14 +10,13 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.bonuspack.utils.BonusPackHelper;
-import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class CustomRoadManager extends RoadManager {
+class CustomRoadManager extends RoadManager {
 
     private static final String OPENROUTE_GUIDANCE_SERVICE = "https://api.openrouteservice.org/v2/directions/";
     private String mApiKey;
@@ -119,7 +118,6 @@ public class CustomRoadManager extends RoadManager {
             JSONObject route_geometry = jPath.getJSONObject("geometry");
             //coords
             JSONArray coords = route_geometry.getJSONArray("coordinates");
-            int len = coords.length(); //löschen!!
             int n = coords.length();
             road.mRouteHigh = new ArrayList<>(n);
             JSONObject jLeg = jPath.getJSONObject("properties");

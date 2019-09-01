@@ -31,12 +31,10 @@ import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
 
 public class Map extends AppCompatActivity implements MapEventsReceiver {
-    MapView map = null;
-    private IMapController mapController;
-    private GeoPoint start;
+    private MapView map = null;
     private GeoPoint end;
-    GeoPoint routingStart;
-    GeoPoint routingEnd;
+    private GeoPoint routingStart;
+    private GeoPoint routingEnd;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,24 +54,15 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         int routingOpt = extras.getInt(("option"));
 
         // creat neccessary geopoints
-        start = setGeop(y1, x1);
+        GeoPoint start = setGeop(y1, x1);
         end = setGeop(y2, x2);
         routingStart = setGeop(x1, y1);
         routingEnd = setGeop(x2, y2);
 
-        ArrayList <GeoPoint> bobox = new ArrayList<>();
-        bobox.add(start);
-        bobox.add(end);
-
-        Log.d("lat", String.valueOf(y1));
-        Log.d("long", String.valueOf(x1));
-
-
         //create mapcontroller and initial map
-        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(this);
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
-        mapController = map.getController();
+        IMapController mapController = map.getController();
         map.setMinZoomLevel(7.0);
         //mapController.setZoom(15.00);
         //mapController.setCenter(start);
@@ -93,7 +82,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         Log.d("road", String.valueOf(road));
 
         if(road != null) {
-            Polyline roadOverlay = roadManager.buildRoadOverlay(road);
+            Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
             map.getOverlays().add(roadOverlay);
             map.invalidate();
             setNodes(road);
@@ -106,7 +95,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         }
     }
 
-    public void showAlert(){
+    private void showAlert(){
         AlertDialog.Builder builder = new AlertDialog.Builder(Map.this);
         builder.setTitle("Achtung!");
         builder.setMessage("Eine Route konnte nicht gefunden werden. Bitte geben Sie andere Koordinaten ein, oder wählen eine andere Routenoption!");
@@ -119,7 +108,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         builder.show();
     }
 
-    public void setBoundingBox(double x1, double x2, double y1, double y2){
+    private void setBoundingBox(double x1, double x2, double y1, double y2){
 
         double north;
         double south;
@@ -164,18 +153,18 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     }
 
     @Override
-    public boolean singleTapConfirmedHelper(GeoPoint p) {
+    public boolean singleTapConfirmedHelper(GeoPoint point) {
         MyInfoWindow.closeAllInfoWindowsOn(map);
         return false;
     }
 
     @Override
-    public boolean longPressHelper(GeoPoint p) {
+    public boolean longPressHelper(GeoPoint poi) {
         return false;
     }
 
     private String getRoutingOption(int opt){
-        String routingOpt = null;
+        String routingOpt;
         if(opt == 0){
             routingOpt = "driving-car";
         } else if(opt == 1){
@@ -186,8 +175,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         return routingOpt;
     }
 
-    public void showInfo(int routingOpt, Road road){
-        String kind = "";
+    private void showInfo(int routingOpt, Road road){
         String durationLength = Road.getLengthDurationText(this, road.mLength, road.mDuration);
         String[] split = durationLength.split("\\,");
         String duration = split[1];
@@ -218,12 +206,12 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         }
     }
 
-    public GeoPoint setGeop(double x, double y){
+    private GeoPoint setGeop(double x, double y){
         GeoPoint p = new GeoPoint(x, y);
         return p;
     }
 
-    public void drawMarker(GeoPoint point){
+    private void drawMarker(GeoPoint point){
 
         Marker marker = new Marker(map);
         marker.setPosition(point);
@@ -234,7 +222,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.invalidate();
     }
 
-    public void setNodes(Road road){
+    private void setNodes(Road road){
         Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
         int mCode;
 

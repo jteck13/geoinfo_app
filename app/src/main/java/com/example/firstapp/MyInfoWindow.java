@@ -1,5 +1,6 @@
 package com.example.firstapp;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -21,21 +22,18 @@ public class MyInfoWindow extends InfoWindow {
     }
 
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onOpen(Object arg0) {
 
         coordX = point.getLatitude();
         coordY = point.getLongitude();
 
-        RelativeLayout layout = (RelativeLayout) mView.findViewById(R.id.bubble_layout);
-        //Button btnMoreInfo = (Button) mView.findViewById(R.id.bubble_moreinfo);
+        RelativeLayout layout =  mView.findViewById(R.id.bubble_layout);
         TextView txtTitle = (TextView) mView.findViewById(R.id.bubble_title);
         TextView txtDescription = (TextView) mView.findViewById(R.id.bubble_description);
-        //TextView txtSubdescription = (TextView) mView.findViewById(R.id.bubble_subdescription);
-
-        txtTitle.setText("Geo-Point");
-        txtDescription.setText("Latitude:" + convertCoord(coordX)+"\nLongitude: "+convertCoord(coordY));
-        //txtSubdescription.setText("You can also edit the subdescription");
+        txtTitle.setText(R.string.geopoint);
+        txtDescription.setText("X-Koordinate: " + convertCoord(coordX)+"\nY-Koordinate: "+convertCoord(coordY));
     }
 
     @Override

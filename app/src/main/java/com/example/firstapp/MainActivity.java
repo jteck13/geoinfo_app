@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -21,6 +20,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import android.location.Location;
 import java.lang.*;
 
+/*
+*
+*
+*
+ */
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +37,12 @@ public class MainActivity extends AppCompatActivity {
     private EditText xCoordTwo;
     private EditText yCoordTwo;
 
-
+    /*
+    * On create function
+    * Get Layout set onClick-Listeners
+    * Check for location permissions. If not try get permission.
+    *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         //Create Buttons
         Button btn = findViewById(R.id.start);
-        ImageButton map = findViewById(R.id.map);
         Button getLocationOne = findViewById(R.id.first_button);
         Button getLocationTwo = findViewById(R.id.second_button);
 
@@ -69,15 +77,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Start navigation
+        /*
+        * If btn click open routing options and go to map
+        *
+         */
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // get distance between start and endpoint
                 double distance = getDistance();
+                // if equal show alert
                 if (distance == 0) {
                     showAlertZero(0);
                 } else if(distance == -999) {
                     showAlertZero(1);
-
                 }else{
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(R.string.title_opt);
@@ -109,7 +121,10 @@ public class MainActivity extends AppCompatActivity {
         // get current location
         getLoc();
     }
-
+    /*
+    * calculate distance between two points
+    * if input is empty show alert
+     */
     private double getDistance(){
 
         int lx1 = xCoordOne.getText().toString().length();
@@ -118,15 +133,17 @@ public class MainActivity extends AppCompatActivity {
         int ly2 = yCoordTwo.getText().toString().length();
 
         double distance1;
-        if (lx1 != 0 && lx2 != 0 && ly1 != 0 && ly2 != 0) {
-            // check if correct pattern
 
+        if (lx1 != 0 && lx2 != 0 && ly1 != 0 && ly2 != 0) {
+
+            // check if correct pattern
             boolean validation;
             double x11 = Double.parseDouble(xCoordOne.getText().toString());
             double y11 = Double.parseDouble(yCoordOne.getText().toString());
             double x12 = Double.parseDouble(xCoordTwo.getText().toString());
             double y12 = Double.parseDouble(yCoordTwo.getText().toString());
 
+            // check if input is valid
             validation = checkPattern(x11,y11,x12,y12);
             if(!validation){
                 return 0;
@@ -134,10 +151,10 @@ public class MainActivity extends AppCompatActivity {
 
             // get user input and parse to Double
             double x1, y1, x2, y2;
-            x1 = Math.toRadians(Double.parseDouble(xCoordOne.getText().toString()));
-            y1 = Math.toRadians(Double.parseDouble(yCoordOne.getText().toString()));
-            x2 = Math.toRadians(Double.parseDouble(xCoordTwo.getText().toString()));
-            y2 = Math.toRadians(Double.parseDouble(yCoordTwo.getText().toString()));
+            x1 = Math.toRadians(x11);
+            y1 = Math.toRadians(y11);
+            x2 = Math.toRadians(x12);
+            y2 = Math.toRadians(y12);
 
             // great circle distance in radians
             double angle1 = Math.acos(Math.sin(x1) * Math.sin(x2)
@@ -146,11 +163,9 @@ public class MainActivity extends AppCompatActivity {
             angle1 = Math.toDegrees(angle1);
             // each degree on a great circle of Earth is 111 km
             distance1 = 111 * angle1;
-            //Double in two decimal places
-            //DecimalFormat df2 = new DecimalFormat("#.##");
-            //String result = df2.format(distance1);
 
         } else{
+            // if null show message
             xCoordOne.setError(null);
             xCoordTwo.setError(null);
             yCoordOne.setError(null);
@@ -169,6 +184,9 @@ public class MainActivity extends AppCompatActivity {
         return distance1;
     }
 
+    /*
+    * check if input values are valid geographic coordinates
+     */
     private boolean checkPattern(double x1, double y1, double x2, double y2){
         boolean validate = false;
         if(x1 > 180 || x1 <= -180 || x2 > 180 || x2 <= -180){
@@ -181,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
         return validate;
     }
 
+    // show alert if values have not correct format
     private void showAlert(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Achtung!");
@@ -189,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    // alert when input field is empty
     private void showAlertZero(int w){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Achtung!");
@@ -201,10 +221,12 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    // request permisson for location
     private void requestPermission(){
         ActivityCompat.requestPermissions(this, permissions, 1);
     }
 
+    // show info and try get permission
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults) {
         if (requestCode ==1){
@@ -228,6 +250,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
+    *
+     */
     private void getLoc() {
         if (checkLocationPermission()){
             fusedLocationClient.getLastLocation()
@@ -235,9 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onSuccess(Location location) {
-                            // Got last known location. In some rare situations this can be null.
                             if (location != null) {
-                                // Logic to handle location object
                                 latitude = location.getLatitude();
                                 longitude = location.getLongitude();
                             }else{

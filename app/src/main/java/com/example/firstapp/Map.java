@@ -28,11 +28,16 @@ import org.osmdroid.views.overlay.Marker;
 import org.osmdroid.views.overlay.Polyline;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
 
 public class Map extends AppCompatActivity implements MapEventsReceiver {
     private MapView map = null;
     private GeoPoint end, start;
+    String routing;
 
+    /*
+    *
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
@@ -71,13 +76,21 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         drawMarker(end);
 
         //get routing
-        RoadManager roadManager = new CustomRoadManager(this,"5b3ce3597851110001cf6248a76d488e5c274105892f8839a3b5e9bb", getRoutingOption(routingOpt));
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         waypoints.add(routingStart);
         waypoints.add(routingEnd);
-        Road road = roadManager.getRoad(waypoints);
-        //create routingline
-        Log.d("road", String.valueOf(road));
+
+        routing = getRoutingOption(routingOpt);
+
+        //AsyncTask
+        Road road = null;
+        try {
+            road = new Routing(this).execute( new RoutingParams(waypoints,routing)).get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if(road != null) {
             Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
@@ -229,6 +242,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
             mCode = node.mManeuverType;
             Marker nodeMarker = new Marker(map);
             nodeMarker.setPosition(node.mLocation);
+            nodeMarker.setAnchor(Marker.ANCHOR_CENTER, 0.5f);
             nodeMarker.setIcon(nodeIcon);
             nodeMarker.setTitle("Schritt "+i);
             nodeMarker.setSnippet(node.mInstructions);
@@ -239,43 +253,36 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
                     Drawable icon0 = getResources().getDrawable(R.drawable.ic_turn_left);
                     nodeMarker.setImage(icon0);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 1:
                     Drawable icon1 = getResources().getDrawable(R.drawable.ic_turn_right);
                     nodeMarker.setImage(icon1);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 2:
                     Drawable icon2 = getResources().getDrawable(R.drawable.ic_sharp_left);
                     nodeMarker.setImage(icon2);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 3:
                     Drawable icon3 = getResources().getDrawable(R.drawable.ic_sharp_right);
                     nodeMarker.setImage(icon3);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 4:
                     Drawable icon4 = getResources().getDrawable(R.drawable.ic_slight_left);
                     nodeMarker.setImage(icon4);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 5:
                     Drawable icon5 = getResources().getDrawable(R.drawable.ic_slight_right);
                     nodeMarker.setImage(icon5);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 6:
                     Drawable icon6 = getResources().getDrawable(R.drawable.ic_continue);
                     nodeMarker.setImage(icon6);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 7:
                     Drawable icon7 = getResources().getDrawable(R.drawable.ic_roundabout);
@@ -286,25 +293,21 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
                     Drawable icon8 = getResources().getDrawable(R.drawable.ic_empty);
                     nodeMarker.setImage(icon8);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 9:
                     Drawable icon9 = getResources().getDrawable(R.drawable.ic_u_turn);
                     nodeMarker.setImage(icon9);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 10:
                     Drawable icon10 = getResources().getDrawable(R.drawable.ic_arrived);
                     nodeMarker.setImage(icon10);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 11:
                     Drawable icon11 = getResources().getDrawable(R.drawable.ic_empty);
                     nodeMarker.setImage(icon11);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
                 case 12:
                     Drawable icon12 = getResources().getDrawable(R.drawable.ic_empty);
@@ -316,7 +319,6 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
                     Drawable icon13 = getResources().getDrawable(R.drawable.ic_empty);
                     nodeMarker.setImage(icon13);
                     map.getOverlays().add(nodeMarker);
-                    map.invalidate();
                     break;
             }
         }

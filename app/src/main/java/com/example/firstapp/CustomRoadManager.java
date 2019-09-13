@@ -41,7 +41,7 @@ class CustomRoadManager extends RoadManager {
         MANEUVERS.put("Leicht rechts", 5);
         MANEUVERS.put("Geradeaus", 6);
         MANEUVERS.put("In den Kreisverkehr einfahren", 7);
-        MANEUVERS.put("Aus dem Kreisverkehr raus fahren", 8);
+        MANEUVERS.put("Kreisverkehr verlassen", 8);
         MANEUVERS.put("Bitte wenden", 9);
         MANEUVERS.put("Ziel", 10);
         MANEUVERS.put("Start", 11);

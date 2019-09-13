@@ -41,8 +41,8 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+        //StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        //StrictMode.setThreadPolicy(policy);
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
@@ -310,13 +310,13 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
                     map.getOverlays().add(nodeMarker);
                     break;
                 case 12:
-                    Drawable icon12 = getResources().getDrawable(R.drawable.ic_empty);
+                    Drawable icon12 = getResources().getDrawable(R.drawable.keep_left);
                     nodeMarker.setImage(icon12);
                     map.getOverlays().add(nodeMarker);
                     map.invalidate();
                     break;
                 case 13:
-                    Drawable icon13 = getResources().getDrawable(R.drawable.ic_empty);
+                    Drawable icon13 = getResources().getDrawable(R.drawable.keep_right);
                     nodeMarker.setImage(icon13);
                     map.getOverlays().add(nodeMarker);
                     break;

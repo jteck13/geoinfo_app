@@ -60,20 +60,44 @@ public class MainActivity extends AppCompatActivity {
         Button getLocationTwo = findViewById(R.id.second_button);
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (checkLocationPermission()){
+                            fusedLocationClient.getLastLocation()
+                                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                                        @Override
+                                        public void onSuccess(Location location) {
+                                            if (location != null) {
+                                                latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                    }else{
+                        Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
 
         getLocationOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                xCoordOne.setText(String.valueOf(longitude));
-                yCoordOne.setText(String.valueOf(latitude));
+                if(!checkLocationPermission()){
+                    requestPermission();
+                    fusedLocationClient.getLastLocation();
+                }else {
+                    fusedLocationClient.getLastLocation();
+                    xCoordOne.setText(String.valueOf(longitude));
+                    yCoordOne.setText(String.valueOf(latitude));
+                }
             }
         });
 
         getLocationTwo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+            if(!checkLocationPermission()){
+                requestPermission();
+            }else {
                 xCoordTwo.setText(String.valueOf(longitude));
                 yCoordTwo.setText(String.valueOf(latitude));
+            }
             }
         });
 
@@ -117,9 +141,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        // get current location
-        getLoc();
     }
     /*
      * calculate distance between two points
@@ -191,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         boolean validate = false;
         if(x1 > 180 || x1 <= -180 || x2 > 180 || x2 <= -180){
             showAlert();
-        }else if(y1 > 90 || y1 <= -90 || y2 > 90 || y2 <= -90){
+        }else if(y1 > 85 || y1 <= -85 || y2 > 85 || y2 <= -85){
             showAlert();
         }else{
             validate = true;
@@ -250,29 +271,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-     *
-     */
-    private void getLoc() {
-        if (checkLocationPermission()){
-            fusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
 
-                        @Override
-                        public void onSuccess(Location location) {
-                            if (location != null) {
-                                latitude = location.getLatitude();
-                                longitude = location.getLongitude();
-                            }else{
-                                Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-        } else {
-            requestPermission();
-        }
-
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean shouldShowRequestPermissionRationale() {
@@ -284,5 +283,46 @@ public class MainActivity extends AppCompatActivity {
     {
         int res = this.checkCallingOrSelfPermission(permissions[0]);
         return (res == PackageManager.PERMISSION_GRANTED);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (checkLocationPermission()){
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                            }else{
+                                Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (checkLocationPermission()){
+            fusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            if (location != null) {
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                            }else{
+                                Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+
     }
 }

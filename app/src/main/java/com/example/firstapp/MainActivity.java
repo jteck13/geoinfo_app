@@ -4,12 +4,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,12 +20,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import android.location.Location;
 import java.lang.*;
 
-/*
- *
- *
- *
+/** Load initial layout with four input fields
+ *  get current user location
+ *  get routing options
+ *  @author jteck
+ *  @version 1.0
  */
-
 public class MainActivity extends AppCompatActivity {
 
     private final String[] permissions = new String[] {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
@@ -37,18 +37,17 @@ public class MainActivity extends AppCompatActivity {
     private EditText xCoordTwo;
     private EditText yCoordTwo;
 
-    /*
+    /**
      * On create function
      * Get Layout set onClick-Listeners
      * Check for location permissions. If not try get permission.
-     *
+     * @param savedInstanceState the data which is saved by returning to MainActivity
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Textfields with Hint for Input
         xCoordOne =  findViewById(R.id.x_one);
         yCoordOne =  findViewById(R.id.y_one);
         xCoordTwo =  findViewById(R.id.x_two);
@@ -59,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
         Button getLocationOne = findViewById(R.id.first_button);
         Button getLocationTwo = findViewById(R.id.second_button);
 
+        /*
+          get current user location
+         */
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (checkLocationPermission()){
                             fusedLocationClient.getLastLocation()
@@ -75,20 +77,24 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
+        /*
+          when clicked on first button set location in first input fields
+         */
         getLocationOne.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(!checkLocationPermission()){
                     requestPermission();
-                    fusedLocationClient.getLastLocation();
                 }else {
-                    fusedLocationClient.getLastLocation();
                     xCoordOne.setText(String.valueOf(longitude));
                     yCoordOne.setText(String.valueOf(latitude));
                 }
             }
         });
 
+        /*
+          when clicked on first button set location in second input fields
+         */
         getLocationTwo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,30 +108,32 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /*
-         * If btn click open routing options and go to map
-         *
+         * if btn clicked open routing options and go to map
          */
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // get distance between start and endpoint
                 double distance = getDistance();
-                // if equal show alert
+                // if start is end show alert
                 if (distance == 0) {
                     showAlertZero(0);
+                // if wrong pattern show alert
                 } else if(distance == -999) {
                     showAlertZero(1);
                 }else{
+                    //show dialog with routing options
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                     builder.setTitle(R.string.title_opt);
                     builder.setItems(R.array.routingOpt, new DialogInterface.OnClickListener() {
+                        // the 'which' argument contains the index position of the selected item
                         public void onClick(DialogInterface dialog, int which) {
-                            // The 'which' argument contains the index position
-                            // of the selected item
+
                             double x1new = Double.parseDouble(xCoordOne.getText().toString());
                             double y1new = Double.parseDouble(yCoordOne.getText().toString());
                             double x2new = Double.parseDouble(xCoordTwo.getText().toString());
                             double y2new = Double.parseDouble(yCoordTwo.getText().toString());
 
+                            // pass data to map activity
                             Intent openMap = new Intent(MainActivity.this, Map.class);
                             Bundle b = new Bundle();
                             b.putDouble("x1", x1new);
@@ -142,9 +150,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    /*
+
+    /**
      * calculate distance between two points
-     * if input is empty show alert
+     * @return the distance between start and end
      */
     private double getDistance(){
 
@@ -205,8 +214,15 @@ public class MainActivity extends AppCompatActivity {
         return distance1;
     }
 
-    /*
-     * check if input values are valid geographic coordinates
+
+    /**
+     * Check pattern of lat and longs
+     *
+     * @param x1 The start latitude, measured  in degrees
+     * @param y1 The start longitude, measured  in degrees
+     * @param x2 The end latitude, measured  in degrees
+     * @param y2 The start longitude, measured  in degrees
+     * @return The validation of input
      */
     private boolean checkPattern(double x1, double y1, double x2, double y2){
         boolean validate = false;
@@ -220,7 +236,9 @@ public class MainActivity extends AppCompatActivity {
         return validate;
     }
 
-    // show alert if values have not correct format
+    /**
+     * Show alert if values have not correct format
+     */
     private void showAlert(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Achtung!");
@@ -229,27 +247,40 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    // alert when input field is empty
+    /**
+     * Alert when input field is empty
+     * @param w 0 or -999
+     */
     private void showAlertZero(int w){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Achtung!");
         if(w == 0) {
             builder.setMessage(R.string.startEnd);
         }else {
-            builder.setMessage("Felder dürfen nicht leer sein! Bitte alle Felder ausfüllen");
+            builder.setMessage(R.string.emptyField);
         }
-        builder.setNegativeButton("Schliessen", null);
+        builder.setNegativeButton(R.string.schliessen, null);
         builder.show();
     }
 
     // request permisson for location
+
+    /**
+     * get permission for location
+     */
     private void requestPermission(){
         ActivityCompat.requestPermissions(this, permissions, 1);
     }
 
-    // show info and try get permission
+    /**Callback for the result from requesting permissions.
+     * Show info and ask user for permission. If denied multiple times don't ask again
+     *
+     * @param requestCode  The code from requested permission
+     * @param permissions  The array which contains all permissions
+     * @param grantResults The grant results for the corresponding permissions which is either
+     */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    public void onRequestPermissionsResult(int requestCode,  String[] permissions,  int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode ==1){
             // Wenn Location Permission gegeben
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -264,27 +295,34 @@ public class MainActivity extends AppCompatActivity {
                     // Wenn keine weitere Nachfrage gewünscht, entferne Location-verknüpfte Elemente
                 }else if (!shouldShowRequestPermissionRationale()){
                     Toast.makeText(this, "Location Permission finally denied", Toast.LENGTH_LONG).show();
-                    Button  vonl = findViewById(R.id.first_button);
-                    vonl.setVisibility(View.GONE);
                 }
             }
         }
     }
 
 
-
+    /**Gets whether you should show UI with rationale for requesting a permission
+     *
+     * @return Whether you can show permission rationale UI.
+     */
     @RequiresApi(api = Build.VERSION_CODES.M)
     private boolean shouldShowRequestPermissionRationale() {
         return shouldShowRequestPermissionRationale(permissions[0]);
     }
 
-    // check permissions
+    /** Check if permission of location
+     *
+     * @return The permission
+     */
     private boolean checkLocationPermission()
     {
         int res = this.checkCallingOrSelfPermission(permissions[0]);
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
+    /**
+     * On resume update current location
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -305,6 +343,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * On restart update current location
+     */
     @Override
     protected void onRestart() {
         super.onRestart();

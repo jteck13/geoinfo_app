@@ -36,7 +36,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
     String routing;
 
     /*
-    *
+     *
      */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -196,10 +196,10 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         switch (routingOpt) {
             case 0:
                 new AlertDialog.Builder(this)
-                    .setTitle(R.string.titleInfo)
-                    .setMessage("Auto\nDie benötigte Zeit beträgt" + duration+".\nNoch " + length + " bis zum Ziel.")
-                    .setNegativeButton(R.string.schliessen, null)
-                    .show();
+                        .setTitle(R.string.titleInfo)
+                        .setMessage("Auto\nDie benötigte Zeit beträgt" + duration+".\nNoch " + length + " bis zum Ziel.")
+                        .setNegativeButton(R.string.schliessen, null)
+                        .show();
                 break;
             case 1:
                 new AlertDialog.Builder(this)

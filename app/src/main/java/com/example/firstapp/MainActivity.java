@@ -21,9 +21,9 @@ import android.location.Location;
 import java.lang.*;
 
 /*
-*
-*
-*
+ *
+ *
+ *
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -38,10 +38,10 @@ public class MainActivity extends AppCompatActivity {
     private EditText yCoordTwo;
 
     /*
-    * On create function
-    * Get Layout set onClick-Listeners
-    * Check for location permissions. If not try get permission.
-    *
+     * On create function
+     * Get Layout set onClick-Listeners
+     * Check for location permissions. If not try get permission.
+     *
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /*
-        * If btn click open routing options and go to map
-        *
+         * If btn click open routing options and go to map
+         *
          */
         btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -91,39 +91,39 @@ public class MainActivity extends AppCompatActivity {
                 } else if(distance == -999) {
                     showAlertZero(1);
                 }else{
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle(R.string.title_opt);
-                        builder.setItems(R.array.routingOpt, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                // The 'which' argument contains the index position
-                                // of the selected item
-                                double x1new = Double.parseDouble(xCoordOne.getText().toString());
-                                double y1new = Double.parseDouble(yCoordOne.getText().toString());
-                                double x2new = Double.parseDouble(xCoordTwo.getText().toString());
-                                double y2new = Double.parseDouble(yCoordTwo.getText().toString());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle(R.string.title_opt);
+                    builder.setItems(R.array.routingOpt, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // The 'which' argument contains the index position
+                            // of the selected item
+                            double x1new = Double.parseDouble(xCoordOne.getText().toString());
+                            double y1new = Double.parseDouble(yCoordOne.getText().toString());
+                            double x2new = Double.parseDouble(xCoordTwo.getText().toString());
+                            double y2new = Double.parseDouble(yCoordTwo.getText().toString());
 
-                                Intent openMap = new Intent(MainActivity.this, Map.class);
-                                Bundle b = new Bundle();
-                                b.putDouble("x1", x1new);
-                                b.putDouble("y1", y1new);
-                                b.putDouble("x2", x2new);
-                                b.putDouble("y2", y2new);
-                                b.putInt("option", which);
-                                openMap.putExtras(b);
-                                MainActivity.this.startActivity(openMap);
-                            }
-                        });
-                        builder.show();
-                    }
+                            Intent openMap = new Intent(MainActivity.this, Map.class);
+                            Bundle b = new Bundle();
+                            b.putDouble("x1", x1new);
+                            b.putDouble("y1", y1new);
+                            b.putDouble("x2", x2new);
+                            b.putDouble("y2", y2new);
+                            b.putInt("option", which);
+                            openMap.putExtras(b);
+                            MainActivity.this.startActivity(openMap);
+                        }
+                    });
+                    builder.show();
                 }
+            }
         });
 
         // get current location
         getLoc();
     }
     /*
-    * calculate distance between two points
-    * if input is empty show alert
+     * calculate distance between two points
+     * if input is empty show alert
      */
     private double getDistance(){
 
@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-    * check if input values are valid geographic coordinates
+     * check if input values are valid geographic coordinates
      */
     private boolean checkPattern(double x1, double y1, double x2, double y2){
         boolean validate = false;
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /*
-    *
+     *
      */
     private void getLoc() {
         if (checkLocationPermission()){

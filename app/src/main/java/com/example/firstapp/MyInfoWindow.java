@@ -1,8 +1,5 @@
 package com.example.firstapp;
 
-import android.annotation.SuppressLint;
-import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -12,31 +9,33 @@ import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
 public class MyInfoWindow extends InfoWindow {
 
-    public GeoPoint point;
-    protected double coordX, coordY;
+    private GeoPoint point;
+    private double coordX, coordY;
+    private int kind;
 
 
-    public MyInfoWindow(int layoutResId, MapView mapView, GeoPoint point) {
+    public MyInfoWindow(int layoutResId, MapView mapView, GeoPoint point, int kind) {
         super(layoutResId, mapView);
         this.point = point;
+        this.kind = kind;
     }
-
 
     @Override
     public void onOpen(Object arg0) {
-
         coordX = point.getLatitude();
         coordY = point.getLongitude();
 
-        RelativeLayout layout = (RelativeLayout) mView.findViewById(R.id.bubble_layout);
-        //Button btnMoreInfo = (Button) mView.findViewById(R.id.bubble_moreinfo);
-        TextView txtTitle = (TextView) mView.findViewById(R.id.bubble_title);
-        TextView txtDescription = (TextView) mView.findViewById(R.id.bubble_description);
-        //TextView txtSubdescription = (TextView) mView.findViewById(R.id.bubble_subdescription);
-
-        txtTitle.setText(R.string.geopoint);
-        txtDescription.setText("X-Koordinate: " + convertCoord(coordX)+"\nY-Koordinate: "+convertCoord(coordY));
-        //txtSubdescription.setText("You can also edit the subdescription");
+        if(kind == 0) {
+            TextView txtTitle = mView.findViewById(R.id.bubble_title);
+            TextView txtDescription = mView.findViewById(R.id.bubble_description);
+            txtTitle.setText(R.string.start);
+            txtDescription.setText("X-Koordinate: " + convertCoord(coordX) + "\nY-Koordinate: " + convertCoord(coordY));
+        }else if( kind == 1){
+            TextView txtTitle = mView.findViewById(R.id.bubble_title);
+            TextView txtDescription = mView.findViewById(R.id.bubble_description);
+            txtTitle.setText(R.string.end);
+            txtDescription.setText("X-Koordinate: " + convertCoord(coordX) + "\nY-Koordinate: " + convertCoord(coordY));
+        }
     }
 
     @Override
@@ -44,7 +43,7 @@ public class MyInfoWindow extends InfoWindow {
 
     }
 
-    String convertCoord(double point){
+    private String convertCoord(double point){
 
         String output, degrees, minutes, seconds;
 

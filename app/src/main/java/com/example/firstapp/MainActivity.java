@@ -277,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param requestCode  The code from requested permission
      * @param permissions  The array which contains all permissions
-     * @param grantResults The grant results for the corresponding permissions which is either
+     * @param grantResults The grant results for the corresponding permissions which is either PERMISSION_GRANTED or PERMISSION_DENIED
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

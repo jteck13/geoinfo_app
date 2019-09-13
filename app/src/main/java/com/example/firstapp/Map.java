@@ -1,20 +1,14 @@
-/*
-  Starts, when Routing-Button is clicked.
-  Class for show routing
- */
-
 package com.example.firstapp;
 
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.View;
 
+import org.osmdroid.api.IMapController;
 import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
@@ -30,14 +24,18 @@ import org.osmdroid.views.overlay.Polyline;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
-public class Map extends AppCompatActivity implements MapEventsReceiver {
+/** Activity shows map and routing with directions
+ *
+ * @author jteck
+ * @version 1.0
+ */
+public class Map extends AppCompatActivity implements MapEventsReceiver, MapView.OnFirstLayoutListener {
     private MapView map = null;
-    private GeoPoint end, start;
-    String routing;
+    private IMapController mapController;
+    private String routing;
+    private Road road;
+    BoundingBox box;
 
-    /*
-     *
-     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
@@ -53,35 +51,31 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         double y2 = extras.getDouble("y2");
         int routingOpt = extras.getInt(("option"));
 
-        // creat neccessary geopoints
-        Log.d("x1", String.valueOf(x1));
-        Log.d("x2", String.valueOf(x2));
-        Log.d("y1", String.valueOf(y1));
-        Log.d("y2", String.valueOf(y2));
-        start = setGeop(y1, x1);
-        end = setGeop(y2, x2);
-        GeoPoint routingStart = setGeop(x1, y1);
-        GeoPoint routingEnd = setGeop(x2, y2);
+        // create neccessary geopoints
+        GeoPoint start = new GeoPoint(y1, x1);
+        GeoPoint end = new GeoPoint(y2, x2);
+        GeoPoint routingStart = new GeoPoint(x1, y1);
+        GeoPoint routingEnd = new GeoPoint(x2, y2);
 
-        //create mapcontroller and initial map
+        // create and initial map
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
+        mapController = map.getController();
         map.setMinZoomLevel(7.0);
         map.invalidate();
 
         // draw marker at start and end
-        drawMarker(start);
-        drawMarker(end);
+        drawMarker(start, 0);
+        drawMarker(end, 1);
 
-        //get routing
+        // create
         ArrayList<GeoPoint> waypoints = new ArrayList<>();
         waypoints.add(routingStart);
         waypoints.add(routingEnd);
-
         routing = getRoutingOption(routingOpt);
 
-        //AsyncTask
-        Road road = null;
+        // get roads in async task
+        road = null;
         try {
             road = new Routing(this).execute( new RoutingParams(waypoints,routing)).get();
         } catch (ExecutionException e) {
@@ -90,59 +84,41 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
             e.printStackTrace();
         }
 
+        // if route is found create new overlay with roads and nodes
         if(road != null) {
+            //retrieve boundingBox from API
+            box = new BoundingBox();
+            box = road.mBoundingBox;
+            //
+            map.addOnFirstLayoutListener(this);
             Polyline roadOverlay = RoadManager.buildRoadOverlay(road);
             map.getOverlays().add(roadOverlay);
-            map.invalidate();
             setNodes(road);
             map.invalidate();
             showInfo(routingOpt, road);
-            setBoundingBox(x1, x2, y1, y2);
             map.invalidate();
         }else{
+            //zoom to start and show alert
+            mapController.setZoom(7.00);
+            mapController.setCenter(start);
             showAlert();
         }
     }
 
+    /**
+     * If road is empty show alert
+     */
     private void showAlert(){
         AlertDialog.Builder builder = new AlertDialog.Builder(Map.this);
         builder.setTitle("Achtung!");
         builder.setMessage("Eine Route konnte nicht gefunden werden. Bitte geben Sie andere Koordinaten ein, oder wählen eine andere Routenoption!");
-        builder.setNegativeButton("Zurück zur Eingabe", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Intent openMain = new Intent(Map.this, MainActivity.class);
-                Map.this.startActivity(openMain);
-            }
-        });
+        builder.setNegativeButton(R.string.schliessen, null);
         builder.show();
     }
 
-    private void setBoundingBox(double x1, double x2, double y1, double y2){
-
-        double north;
-        double south;
-        double west;
-        double east;
-
-        if(y1>y2){
-            north = y1;
-            south = y2;
-        } else{
-            north = y2;
-            south = y1;
-        }
-        if(x1>x2){
-            east = x1;
-            west = x2;
-        } else{
-            east = x2;
-            west = x1;
-        }
-        BoundingBox bbox = new BoundingBox(north, east, south, west);
-        map.zoomToBoundingBox(bbox, true);
-        map.invalidate();
-    }
-
+    /** On resume
+     *
+     */
     public void onResume(){
         super.onResume();
         //this will refresh the osmdroid configuration on resuming.
@@ -152,6 +128,9 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.onResume(); //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    /** On pause
+     *
+     */
     public void onPause(){
         super.onPause();
         //this will refresh the osmdroid configuration on resuming.
@@ -161,18 +140,33 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         map.onPause();  //needed for compass, my location overlays, v6.0.0 and up
     }
 
+    /**
+     *
+     * @param point The point where user clicks
+     * @return The response
+     */
     @Override
     public boolean singleTapConfirmedHelper(GeoPoint point) {
         MyInfoWindow.closeAllInfoWindowsOn(map);
-        return true;
-    }
-
-    @Override
-    public boolean longPressHelper(GeoPoint poi) {
-
         return false;
     }
 
+    /**
+     *
+     * @param poi The point where user clicks
+     * @return The event has not been "consumed"
+     */
+    @Override
+    public boolean longPressHelper(GeoPoint poi) {
+        MyInfoWindow.closeAllInfoWindowsOn(map);
+        return false;
+    }
+
+    /**The selected routing option
+     *
+     * @param opt The option which is selected
+     * @return The string with the selected routing option
+     */
     private String getRoutingOption(int opt){
         String routingOpt;
         if(opt == 0){
@@ -185,8 +179,15 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         return routingOpt;
     }
 
+    /**The initial routing information
+     *
+     * @param routingOpt The routing option
+     * @param road The information provided by API
+     */
     private void showInfo(int routingOpt, Road road){
+        // get length and duration for whole routing
         String durationLength = Road.getLengthDurationText(this, road.mLength, road.mDuration);
+        // split information by regex
         String[] split = durationLength.split("\\,");
         String duration = split[1];
         String length = split[0];
@@ -216,26 +217,39 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
         }
     }
 
-    private GeoPoint setGeop(double x, double y){
-        return new GeoPoint(x, y);
-    }
-
-    private void drawMarker(GeoPoint point){
-
+    /**Create marker for start and end
+     *
+     * @param point The point, either start or end
+     * @param position 0 or 1, depending on position
+     */
+    private void drawMarker(GeoPoint point, int position){
         Marker marker = new Marker(map);
         marker.setPosition(point);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-        MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, point);
-        marker.setInfoWindow(infoWindowEnd);
+        // start
+        if(position == 0) {
+            MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, point, position);
+            marker.setInfoWindow(infoWindowEnd);
+        }else{
+            MyInfoWindow infoWindowEnd = new MyInfoWindow(R.layout.bonuspack_bubble, map, point, position);
+            marker.setInfoWindow(infoWindowEnd);
+        }
         map.getOverlays().add(marker);
         map.invalidate();
     }
 
+    /**Set nodes and create info bubble depending on direction
+     *
+     * @param road The way between start and end
+     */
     private void setNodes(Road road){
+        //set node icon
         Drawable nodeIcon = getResources().getDrawable(R.drawable.marker_node);
         int mCode;
+        int length = road.mNodes.size();
 
-        for (int i=0; i<road.mNodes.size(); i++){
+        // create nodes except for start and end
+        for (int i=1; i<length-1; i++){
             RoadNode node = road.mNodes.get(i);
             mCode = node.mManeuverType;
             Marker nodeMarker = new Marker(map);
@@ -320,5 +334,21 @@ public class Map extends AppCompatActivity implements MapEventsReceiver {
                     break;
             }
         }
+    }
+
+    /**this generally means that the map is ready to go
+     *
+     * @param v -
+     * @param left -
+     * @param top -
+     * @param right -
+     * @param bottom -
+     */
+    @Override
+    public void onFirstLayout(View v, int left, int top, int right, int bottom) {
+        if (road != null) {
+            map.zoomToBoundingBox(box, true, 400);
+        }
+        map.invalidate();
     }
 }

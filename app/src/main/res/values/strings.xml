@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!-- ** Strings which are used in app -->
 <resources>
-    <string name="app_name">Distanzrechner</string>
+    <string name="app_name">Routing</string>
     <string name="distanzrechner">Bitte geben Sie Ihre Start- und Ziel-\nposition ein:</string>
     <string name="title_opt">Bitte wählen Sie Ihre Routingoption:</string>
     <string name="titleInfo">Starte Routing</string>
     <string name="schliessen">Schließen</string>
     <string name="emptyField">Felder dürfen nicht leer sein! Bitte alle Felder ausfüllen</string>
-
-
     <string name="manouver_0">Links abbiegen</string>
     <string name="manouver_1">Rechts abbiegen</string>
     <string name="manouver_2">Scharf links abbiegen</string>
@@ -29,11 +27,10 @@
     <string name="y_koordinate_1">Y-Koordinate 1</string>
     <string name="x_koordinate_2">X-Koordinate 2</string>
     <string name="y_koordinate_2">Y-Koordinate 2</string>
-    <string name="geopoint">Geo-Point</string>
+    <string name="start">Start</string>
+    <string name="end">Ziel</string>
     <string name="start_nav">Start navigation</string>
     <string name="startEnd">Startpunkt darf nicht Endpunkt sein.</string>
-
-
 </resources>
 
 

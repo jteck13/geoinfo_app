@@ -10,6 +10,7 @@ import org.osmdroid.bonuspack.routing.Road;
 import org.osmdroid.bonuspack.routing.RoadManager;
 import org.osmdroid.bonuspack.routing.RoadNode;
 import org.osmdroid.bonuspack.utils.BonusPackHelper;
+import org.osmdroid.util.BoundingBox;
 import org.osmdroid.util.GeoPoint;
 
 import java.util.ArrayList;
@@ -112,7 +113,6 @@ class CustomRoadManager extends RoadManager {
                     return null;
                 }
             }
-
             JSONArray jPaths = jRoot.optJSONArray("features");
             JSONObject jPath = jPaths.getJSONObject(0);
             JSONObject route_geometry = jPath.getJSONObject("geometry");
@@ -152,6 +152,13 @@ class CustomRoadManager extends RoadManager {
                 node.mInstructions = buildInstructions(instruction, roadName);
                 road.mNodes.add(node);
             }
+
+            JSONArray bbox = jRoot.getJSONArray("bbox");
+            final double longmax =bbox.getDouble(0);
+            final double latmin =bbox.getDouble(1);
+            final double longmin =bbox.getDouble(2);
+            final double latmax =bbox.getDouble(3);
+            road.mBoundingBox = new BoundingBox(latmin,longmin,latmax,longmax);
 
         } catch (JSONException e) {
             e.printStackTrace();

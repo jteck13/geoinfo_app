@@ -36,7 +36,7 @@
         android:layout_marginStart="52dp"
         android:layout_marginLeft="52dp"
         android:layout_marginTop="10dp"
-        android:text="@string/set_current_location_as_endpoint" />
+        android:text="@string/set_current_location_as_start" />
 
     <Button
         android:id="@+id/second_button"
@@ -47,7 +47,7 @@
         android:layout_marginStart="59dp"
         android:layout_marginLeft="59dp"
         android:layout_marginTop="10dp"
-        android:text="@string/set_current_location_as_start" />
+        android:text="@string/set_current_location_as_endpoint" />
 
     <EditText
         android:id="@+id/x_one"

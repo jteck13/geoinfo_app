@@ -16,14 +16,24 @@ import org.osmdroid.util.GeoPoint;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-
+/**Retrieves the result from server. Build the roads and nodes with description for user.
+ *
+ * @author jteck
+ * @version 1.0
+ */
 class CustomRoadManager extends RoadManager {
 
     private static final String OPENROUTE_GUIDANCE_SERVICE = "https://api.openrouteservice.org/v2/directions/";
-    private String mApiKey;
+    private final String mApiKey;
     private String mOptions;
     private Context mContext;
 
+    /**Creates a roadmanager with specific route profiles
+     *
+     * @param context The map
+     * @param apiKey The APIKey from ORS
+     * @param profile The roting profile
+     */
     CustomRoadManager(Context context, String apiKey, String profile){
         super();
         mContext = context;
@@ -31,6 +41,9 @@ class CustomRoadManager extends RoadManager {
         mOptions = profile;
     }
 
+    /**Hashes the different manouvers into int
+     *
+     */
     private static final HashMap<String, Integer> MANEUVERS;
     static {
         MANEUVERS = new HashMap<>();
@@ -50,6 +63,9 @@ class CustomRoadManager extends RoadManager {
         MANEUVERS.put("Rechts halten", 13);
     }
 
+    /**Puts the hashcodes in HashMap
+     *
+     */
     private static final HashMap<Integer, Object> DIRECTIONS;
     static {
         DIRECTIONS = new HashMap<>();
@@ -69,12 +85,21 @@ class CustomRoadManager extends RoadManager {
         DIRECTIONS.put(13, R.string.manouver_13);
     }
 
+    /**Determine the routing profile
+     *
+     * @param requestOption The routing profile
+     */
     //route options
     @Override
     public void addRequestOption(String requestOption){
         mOptions =   requestOption + "?";
     }
 
+    /**Build a String with input params for GET-Request
+     *
+     * @param waypoints The start and endpoints
+     * @return The GET-request string
+     */
     private String getUrl(ArrayList<GeoPoint> waypoints) {
         StringBuilder urlString = new StringBuilder(OPENROUTE_GUIDANCE_SERVICE);
 
@@ -84,7 +109,7 @@ class CustomRoadManager extends RoadManager {
         urlString.append("&start=");
         GeoPoint p = waypoints.get(0);
         urlString.append(geoPointAsString(p));
-
+        // could be more than two points
         for (int i=1; i<waypoints.size(); i++){
             p = waypoints.get(i);
             urlString.append("&end=").append(geoPointAsString(p));
@@ -92,6 +117,11 @@ class CustomRoadManager extends RoadManager {
         return urlString.toString();
     }
 
+    /**Builds the road with nodes
+     *
+     * @param waypoints The start and endpoint
+     * @return The routing path with maneuver description
+     */
     public Road getRoad(ArrayList<GeoPoint> waypoints) {
         String url = getUrl(waypoints);
         String jString = BonusPackHelper.requestStringFromUrl(url);
@@ -101,11 +131,15 @@ class CustomRoadManager extends RoadManager {
         }
 
         Road road = new Road();
+
         try {
             JSONObject jRoot = new JSONObject(jString);
-            //features
             JSONObject status = jRoot.optJSONObject("error");
-
+            /*
+            * Handle error code 2010
+            * There are no valid input coordinates
+            * Routing could not be retrieved
+            */
             if(status != null) {
                 int code = status.getInt("code");
                 if(code == 2010){
@@ -113,19 +147,21 @@ class CustomRoadManager extends RoadManager {
                     return null;
                 }
             }
+            // get information form JSON-Object
             JSONArray jPaths = jRoot.optJSONArray("features");
             JSONObject jPath = jPaths.getJSONObject(0);
             JSONObject route_geometry = jPath.getJSONObject("geometry");
-            //coords
             JSONArray coords = route_geometry.getJSONArray("coordinates");
             int n = coords.length();
+            //create ArrayList for all segments
             road.mRouteHigh = new ArrayList<>(n);
             JSONObject jLeg = jPath.getJSONObject("properties");
             JSONArray jSeg = jLeg.getJSONArray("segments");
             JSONObject segments = jSeg.getJSONObject(0);
+            //get length in kilometres
             road.mLength = segments.getDouble("distance") / 1000;
+            // get duration for whole routing
             road.mDuration = segments.getDouble("duration");
-            //road.mBoundingBox = BoundingBox.fromGeoPoints(road.mRouteHigh);
             JSONArray steps = segments.getJSONArray("steps");
 
             //setting up roads
@@ -153,6 +189,7 @@ class CustomRoadManager extends RoadManager {
                 road.mNodes.add(node);
             }
 
+            // get bounding box from server response
             JSONArray bbox = jRoot.getJSONArray("bbox");
             final double longmax =bbox.getDouble(0);
             final double latmin =bbox.getDouble(1);
@@ -169,8 +206,8 @@ class CustomRoadManager extends RoadManager {
     }
 
 
-    /**
-     * Note that alternate roads are not supported by MapQuest. This will always return 1 entry only.
+    /**If there are more than start and endpoint
+     *
      */
     @Override public Road[] getRoads(ArrayList<GeoPoint> waypoints) {
         Road road = getRoad(waypoints);
@@ -179,6 +216,12 @@ class CustomRoadManager extends RoadManager {
         return roads;
     }
 
+    /**Creates the instruction for a node
+     *
+     * @param maneuver The hashed maneuvers
+     * @param roadName The specific road names
+     * @return The instruction for the node
+     */
     private String buildInstructions(int maneuver, String roadName){
         Integer resDirection = (Integer) DIRECTIONS.get(maneuver);
 
@@ -188,6 +231,7 @@ class CustomRoadManager extends RoadManager {
 
         String direction = mContext.getString(resDirection);
         String instructions;
+        // if there is a road name show it
         if(roadName.equals("-")){
             instructions = direction;
         } else{

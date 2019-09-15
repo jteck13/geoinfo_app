@@ -7,6 +7,7 @@
     <string name="titleInfo">Starte Routing</string>
     <string name="schliessen">Schließen</string>
     <string name="emptyField">Felder dürfen nicht leer sein! Bitte alle Felder ausfüllen</string>
+    <string name="noNetwork">Kein Internet verfügbar. Bitte prüfen Sie Ihre Internetverbindung!</string>
     <string name="manouver_0">Links abbiegen</string>
     <string name="manouver_1">Rechts abbiegen</string>
     <string name="manouver_2">Scharf links abbiegen</string>

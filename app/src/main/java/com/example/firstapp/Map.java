@@ -36,6 +36,10 @@ public class Map extends AppCompatActivity implements MapEventsReceiver, MapView
     private Road road;
     BoundingBox box;
 
+    /**
+     *
+     * @param savedInstanceState The saved instances
+     */
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
@@ -188,7 +192,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver, MapView
         // get length and duration for whole routing
         String durationLength = Road.getLengthDurationText(this, road.mLength, road.mDuration);
         // split information by regex
-        String[] split = durationLength.split("\\,");
+        String[] split = durationLength.split(",");
         String duration = split[1];
         String length = split[0];
 
@@ -336,7 +340,7 @@ public class Map extends AppCompatActivity implements MapEventsReceiver, MapView
         }
     }
 
-    /**this generally means that the map is ready to go
+    /**This generally means that the map is ready to go
      *
      * @param v -
      * @param left -

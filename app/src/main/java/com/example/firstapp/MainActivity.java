@@ -3,6 +3,8 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -36,9 +38,11 @@ public class MainActivity extends AppCompatActivity {
     private EditText yCoordOne;
     private EditText xCoordTwo;
     private EditText yCoordTwo;
+    private Button getLocationOne;
+    private Button getLocationTwo;
 
-    /**
-     * On create function
+    /**On create function
+     *
      * Get Layout set onClick-Listeners
      * Check for location permissions. If not try get permission.
      * @param savedInstanceState the data which is saved by returning to MainActivity
@@ -55,24 +59,23 @@ public class MainActivity extends AppCompatActivity {
 
         //Create Buttons
         Button btn = findViewById(R.id.start);
-        Button getLocationOne = findViewById(R.id.first_button);
-        Button getLocationTwo = findViewById(R.id.second_button);
-
+        getLocationOne = findViewById(R.id.first_button);
+        getLocationTwo = findViewById(R.id.second_button);
         /*
           get current user location
          */
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         if (checkLocationPermission()){
-                            fusedLocationClient.getLastLocation()
-                                    .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                                        @Override
-                                        public void onSuccess(Location location) {
-                                            if (location != null) {
-                                                latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                    }else{
-                        Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
-                    }
+                        fusedLocationClient.getLastLocation()
+                                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                                    @Override
+                                    public void onSuccess(Location location) {
+                                        if (location != null) {
+                                            latitude = location.getLatitude();
+                                            longitude = location.getLongitude();
+                }else{
+                    Toast.makeText(getApplicationContext(), "No Location Found", Toast.LENGTH_SHORT).show();
+                }
                 }
             });
         }
@@ -120,6 +123,8 @@ public class MainActivity extends AppCompatActivity {
                 // if wrong pattern show alert
                 } else if(distance == -999) {
                     showAlertZero(1);
+                }else if (!isNetworkAvailable()) {
+                    showAlertZero(3);
                 }else{
                     //show dialog with routing options
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -151,8 +156,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * calculate distance between two points
+    /**calculate distance between two points
+     *
      * @return the distance between start and end
      */
     private double getDistance(){
@@ -215,8 +220,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Check pattern of lat and longs
+    /**Check pattern of lat and longs
      *
      * @param x1 The start latitude, measured  in degrees
      * @param y1 The start longitude, measured  in degrees
@@ -236,8 +240,8 @@ public class MainActivity extends AppCompatActivity {
         return validate;
     }
 
-    /**
-     * Show alert if values have not correct format
+    /**Show alert if values have not correct format
+     *
      */
     private void showAlert(){
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -247,8 +251,8 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
-    /**
-     * Alert when input field is empty
+    /**Alert when input field is empty
+     *
      * @param w 0 or -999
      */
     private void showAlertZero(int w){
@@ -256,6 +260,8 @@ public class MainActivity extends AppCompatActivity {
         builder.setTitle("Achtung!");
         if(w == 0) {
             builder.setMessage(R.string.startEnd);
+        }else if (w == 3) {
+            builder.setMessage(R.string.noNetwork);
         }else {
             builder.setMessage(R.string.emptyField);
         }
@@ -265,8 +271,8 @@ public class MainActivity extends AppCompatActivity {
 
     // request permisson for location
 
-    /**
-     * get permission for location
+    /**Get permission for location
+     *
      */
     private void requestPermission(){
         ActivityCompat.requestPermissions(this, permissions, 1);
@@ -282,26 +288,26 @@ public class MainActivity extends AppCompatActivity {
     @RequiresApi(api = Build.VERSION_CODES.M)
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode ==1){
-            // Wenn Location Permission gegeben
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "GPS Permission Granted", Toast.LENGTH_SHORT).show();
-                // Wenn keine Location Permission gegeben
+                // if not give hint
             }else {
                 Toast.makeText(this, "Need Permission to use GPS", Toast.LENGTH_LONG).show();
-
                 if (shouldShowRequestPermissionRationale()) {
                     Toast.makeText(this, "If you deny the Location Permission some features may be unavailable", Toast.LENGTH_LONG).show();
                     checkLocationPermission();
-                    // Wenn keine weitere Nachfrage gewünscht, entferne Location-verknüpfte Elemente
+                    // if finally denied remove buttons
                 }else if (!shouldShowRequestPermissionRationale()){
                     Toast.makeText(this, "Location Permission finally denied", Toast.LENGTH_LONG).show();
+                    getLocationOne.setVisibility(View.GONE);
+                    getLocationTwo.setVisibility(View.GONE);
                 }
             }
         }
     }
 
 
-    /**Gets whether you should show UI with rationale for requesting a permission
+    /**Checks whether you should show UI with rationale for requesting a permission
      *
      * @return Whether you can show permission rationale UI.
      */
@@ -320,8 +326,8 @@ public class MainActivity extends AppCompatActivity {
         return (res == PackageManager.PERMISSION_GRANTED);
     }
 
-    /**
-     * On resume update current location
+    /**On resume update current location
+     *
      */
     @Override
     protected void onResume() {
@@ -365,5 +371,15 @@ public class MainActivity extends AppCompatActivity {
                     });
         }
 
+    }
+
+    /**Check if network is available
+     *
+     * @return True if network is available
+     */
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(this.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }

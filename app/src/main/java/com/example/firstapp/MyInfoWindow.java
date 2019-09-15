@@ -1,29 +1,41 @@
 package com.example.firstapp;
 
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.infowindow.InfoWindow;
 
+/**
+ * @author jteck
+ * @version 1.0
+ */
 public class MyInfoWindow extends InfoWindow {
 
     private GeoPoint point;
-    private double coordX, coordY;
     private int kind;
 
-
-    public MyInfoWindow(int layoutResId, MapView mapView, GeoPoint point, int kind) {
+    /**The content of a info window
+     *
+     * @param layoutResId The layoutID
+     * @param mapView The current map
+     * @param point The given point
+     * @param kind The kind of point, could be start or end
+     */
+    MyInfoWindow(int layoutResId, MapView mapView, GeoPoint point, int kind) {
         super(layoutResId, mapView);
         this.point = point;
         this.kind = kind;
     }
 
+    /**Set title and description
+     *
+     * @param arg0 The point which is opened
+     */
     @Override
     public void onOpen(Object arg0) {
-        coordX = point.getLatitude();
-        coordY = point.getLongitude();
+        double coordX = point.getLatitude();
+        double coordY = point.getLongitude();
 
         if(kind == 0) {
             TextView txtTitle = mView.findViewById(R.id.bubble_title);
@@ -43,6 +55,11 @@ public class MyInfoWindow extends InfoWindow {
 
     }
 
+    /**Convert input coords to degrees, minutes and seconds
+     *
+     * @param point The coordinate which should be converted
+     * @return The coordinates in degrees, minutes and seconds
+     */
     private String convertCoord(double point){
 
         String output, degrees, minutes, seconds;
@@ -55,7 +72,6 @@ public class MyInfoWindow extends InfoWindow {
         degrees = String.valueOf(intPart);
 
         //degrees
-
         point = mod * 60;
         mod = point % 1;
         intPart = (int)point;
@@ -78,7 +94,6 @@ public class MyInfoWindow extends InfoWindow {
         //String to return
         output = degrees + "° " + minutes + "' " + seconds + "''";
 
-        //output = degrees + "°" + minutes + "'" + seconds + "\"";
         return output;
     }
 }
